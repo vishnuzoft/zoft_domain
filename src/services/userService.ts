@@ -13,6 +13,7 @@ import {
   RegistrationResponse,
   User,
   user,
+  userLoginData,
 } from '../models';
 import {
   UserRepository,
@@ -22,8 +23,11 @@ import {
   validation,
   hashPassword,
   generateSalt,
-  comparePasswords
+  comparePasswords,
+  generateToken
 } from '../utility';
+
+const jwt =require('jsonwebtoken');
 
 class UserService {
   static async registerUser(req: registerReq): Promise<RegistrationResponse> {
@@ -54,8 +58,11 @@ class UserService {
         password_salt: passwordSalt,
         password_hash: passwordHash,
       };
+
+      const token = generateToken(32);
+
       
-      const result = await UserRepository.createUser(dbClient, user);
+      const result = await UserRepository.createUser(dbClient, user,token);
       
       await commit(dbClient);
       return {
@@ -94,7 +101,7 @@ class UserService {
         dbClient,
         userData.user_id
       );
-      //const userDetails: number = userDetailsResult.rows[0];
+      const userDetails: userLoginData = userDetailsResult.rows[0];
       
       if (
         !comparePasswords(
@@ -105,12 +112,19 @@ class UserService {
       ) {
         throw new customError("Password incorrect", 400);
       }
+      const token_secret = process.env.jwt_secret;
+      const accessToken = jwt.sign(
+        { userId: userDetails.id },
+        token_secret,
+        { expiresIn: "24h" }
+      );
 
       return {
         message: "Successfully logged in",
         status: 200,
         id: userData.user_id,
-        email: userData.email
+        email: userData.email,
+        token: accessToken,
       };
     } catch (error) {
       throw error;

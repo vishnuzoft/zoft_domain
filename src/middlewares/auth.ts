@@ -32,7 +32,7 @@ export const authmiddleware = (
   }
   const verifyToken = token.replace(/"/g, "");
 
-  const secret_code = environment.jwt_secret;
+  const secret_code = environment.JWT_SECRET;
   jwt.verify(verifyToken, secret_code, (err: any, decoded: any) => {
     if (err) {
       return res.status(401).json({

@@ -13,4 +13,8 @@ export interface loginResponse {
   message: string;
   id: number;
   email: string;
+  token:string;
+}
+export interface userLoginData {
+  id: number;
 }

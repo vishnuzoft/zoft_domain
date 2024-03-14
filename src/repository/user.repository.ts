@@ -11,11 +11,12 @@ class UserRepository {
   static async createUser(
     client: PoolClient,
     user: registerBody,
+    token:string,
   ): Promise<User> {
     try {
       const result = await client.query(
-          "INSERT INTO tbl_user_account(email, password_hash, password_salt, country_code, mobile) VALUES($1, $2, $3, $4, $5) RETURNING user_id, email, password_hash, password_salt, country_code, mobile",
-          [user.email, user.password_hash, user.password_salt, user.country_code, user.mobile]
+          "INSERT INTO tbl_user_account(email, password_hash, password_salt,token, country_code, mobile) VALUES($1, $2, $3, $4, $5,$6) RETURNING user_id, email, password_hash, password_salt, country_code, mobile",
+          [user.email, user.password_hash, user.password_salt, token,user.country_code, user.mobile]
         );
     console.log(result.rows);
     

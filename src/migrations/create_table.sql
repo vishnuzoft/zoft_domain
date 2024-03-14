@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS tbl_user_account(
     mobile VARCHAR(15) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     password_salt VARCHAR(255) NOT NULL,
+    token VARCHAR(255),
+    token_generation_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

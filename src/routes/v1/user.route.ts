@@ -4,8 +4,8 @@ import { UserController } from "../../controller";
 
 const router = express.Router();
 
-router.post("/register", UserController.createuser);
-router.post("/login", UserController.login);
+router.post("/register", UserController.UserRegister);
+router.post("/login",UserController.UserLogin);
 
 
 
