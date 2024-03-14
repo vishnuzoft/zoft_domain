@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS tbl_user_account(
+    user_id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    country_code VARCHAR(5) NOT NULL,
+    mobile VARCHAR(15) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    password_salt VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);

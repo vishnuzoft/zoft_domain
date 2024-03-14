@@ -1,0 +1,16 @@
+{
+  "$id":"register",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "country_code":{"type":"string"},
+    "mobile":{"type":"string","minLength":10},
+    "password":{"type":"string","minLength":8},
+    "confirm_password":{"type":"string"}
+  },
+  "required": ["email","country_code","mobile","password","confirm_password"],
+  "additionalProperties": false
+}
