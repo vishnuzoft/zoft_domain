@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/register", UserController.UserRegister);
 router.post("/login",UserController.UserLogin);
+router.post("/setprofile",UserController.setUserProfile);
 
 
 

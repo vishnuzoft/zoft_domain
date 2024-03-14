@@ -3,6 +3,8 @@ import {
 } from 'pg';
 
 import {
+  ProfileBody,
+  ProfileResponse,
   registerBody,
   User
 } from '../models';
@@ -51,6 +53,19 @@ class UserRepository {
       return user;
     } catch (error) {
       throw error;
+    }
+  }
+  static async setUserProfile(client:PoolClient,profile:ProfileBody):Promise<ProfileResponse>{
+    try {
+      const result = await client.query(
+        "INSERT INTO tbl_user_profile(first_name,last_name,company_name,email,address1,address2,city,state,post_code,country,country_code,mobile) VALUES($1, $2, $3, $4, $5,$6,$7,$8,$9,$10,$11,$12) RETURNING *",
+        [profile.first_name,profile.last_name,profile.company_name,profile.email,profile.address1,profile.address2,profile.city,profile.state,profile.post_code,profile.country,profile.country_code, profile.mobile]
+      );
+  console.log(result.rows);
+  
+    return result.rows[0];
+    } catch (error) {
+      throw error
     }
   }
 }

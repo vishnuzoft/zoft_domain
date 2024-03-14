@@ -9,6 +9,9 @@ import {
 import {
   loginRequest,
   loginResponse,
+  ProfileBody,
+  ProfileRequest,
+  ProfileResponse,
   registerReq,
   RegistrationResponse,
   User,
@@ -131,6 +134,68 @@ class UserService {
     } finally {
       release(dbClient);
     }
+}
+static async setUserProfile(req:ProfileRequest):Promise<ProfileResponse>{
+  const dbClient=await client();
+  try {
+    const { first_name,
+      last_name,
+      company_name,
+      email,
+      address1,
+      address2,
+      city,
+      state,
+      post_code,
+      country,
+      country_code,
+      mobile } = req.body;
+
+      const valid = validation("profile", req.body);
+
+      await begin(dbClient);
+
+      const profile: ProfileBody = {
+        first_name,
+        last_name,
+        company_name,
+        address1,
+        address2,
+        city,
+        state,
+        post_code,
+        country,
+        email,
+        country_code,
+        mobile,
+      };
+
+      const result = await UserRepository.setUserProfile(dbClient, profile);
+
+      await commit(dbClient);
+
+      return {
+        message: "Profile Created successfully!",
+        id: result.id,
+        first_name:result.first_name,
+        last_name:result.last_name,
+        company_name:result.company_name,
+        address1:result.address1,
+        address2:result.address2,
+        email: result.email,
+        status: 200,
+        country:country,
+        country_code: result.country_code,
+        mobile: result.mobile,
+        city:result.city,
+        state:result.state,
+        post_code:result.post_code
+      };
+  } catch (error) {
+    throw error
+  }finally{
+    release(dbClient)
+  }
 }
 }
 export {UserService}
