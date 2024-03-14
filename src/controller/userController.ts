@@ -1,5 +1,5 @@
 import { NextFunction,Response } from "express";
-import { loginRequest, registerReq } from "../models";
+import { ProfileRequest, loginRequest, registerReq } from "../models";
 import { UserService } from "../services";
 
 class UserController {
@@ -27,5 +27,17 @@ class UserController {
       next(error);
     }
   };
+  static setUserProfile = async (
+    req: ProfileRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const response = await UserService.setUserProfile(req);
+      return res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 };
 export {UserController}

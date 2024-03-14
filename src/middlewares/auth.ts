@@ -13,7 +13,6 @@ dotenv.config();
 // Extend the Request type to include userId
 interface AuthenticatedRequest extends Request {
   userId?: string;
-  role?: number;
 }
 
 export const authmiddleware = (
@@ -42,7 +41,6 @@ export const authmiddleware = (
       });
     } else {
       req.userId = decoded.userId;
-      req.role = decoded.role;
 
       next();
     }
