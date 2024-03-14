@@ -3,7 +3,7 @@ import { loginRequest, registerReq } from "../models";
 import { UserService } from "../services";
 
 class UserController {
-  static createuser = async (
+  static UserRegister = async (
     req: registerReq,
     res: Response,
     next: NextFunction
@@ -15,7 +15,7 @@ class UserController {
       next(error);
     }
   }
-  static login = async (
+  static UserLogin = async (
     req: loginRequest,
     res: Response,
     next: NextFunction

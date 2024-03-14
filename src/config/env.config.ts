@@ -9,4 +9,5 @@ export const environment = {
   DB_NAME: process.env.DB_NAME,
   PORT: process.env.PORT,
   IP_ADDRESS: process.env.IP_ADDRESS,
+  JWT_SECRET:process.env.JWT_SECRET,
 };
