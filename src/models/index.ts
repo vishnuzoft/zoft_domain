@@ -7,3 +7,4 @@ export * from "./login.model";
 export * from "./response.model";
 export * from "./ajvError.model";
 export * from "./profile.model";
+export * from "./domain.model";

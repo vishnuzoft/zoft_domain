@@ -39,5 +39,18 @@ class UserController {
       next(error);
     }
   }
+  static getUserProfileById = async (
+    req: ProfileRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const response = await UserService.getUserProfileById(req);
+      return res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+  
 };
 export {UserController}

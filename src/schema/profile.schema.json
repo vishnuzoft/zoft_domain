@@ -18,7 +18,7 @@
       "country_code":{"type":"string"},
       "mobile":{"type":"string","minLength":10}
     },
-    "required": ["email","country_code","mobile"],
+    "required": ["email","country_code","mobile","first_name","company_name","address1","city","post_code","state","country"],
     "additionalProperties": false
   }
   

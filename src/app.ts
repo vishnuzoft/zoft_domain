@@ -5,6 +5,8 @@ import * as dotenv from 'dotenv';
 import express, {
   Request,
   Response,
+  request,
+  response,
 } from 'express';
 import http from 'http';
 
@@ -29,11 +31,18 @@ const IP_ADDRESS = environment.IP_ADDRESS;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(
+  cors({
+    methods: ["*"],
+  })
+);
 
 app.use("/public", express.static("public"));
 
 app.use("/api", V1);
+app.get('/', (req, res) => {
+  res.send('helloworld');
+});
 app.use(errorHandler);
 
 const server = newServer.listen(PORT,IP_ADDRESS ,() => {
