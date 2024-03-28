@@ -29,8 +29,9 @@ import {
   comparePasswords,
   generateToken
 } from '../utility';
+import { sendSms } from '../utility/smsSender';
 
-const jwt =require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 class UserService {
   static async registerUser(req: registerReq): Promise<RegistrationResponse> {
@@ -64,8 +65,19 @@ class UserService {
 
       const token = generateToken(32);
 
-      
-      const result = await UserRepository.createUser(dbClient, user,token);
+
+      const result = await UserRepository.createUser(dbClient, user, token);
+
+      const currentDatetime = new Date();
+      const formattedDatetime = currentDatetime
+        .toISOString()
+        .replace('T', ' ')  
+        .replace(/\.\d+Z$/, '');
+      const smsTo = `${result.country_code}${result.mobile}`;
+      const smsText = `Welcome to Zoftdomain,Registration successful.`;
+      await sendSms(smsTo, smsText, formattedDatetime);
+      console.log("sms",smsTo);
+      console.log(formattedDatetime);
       
       await commit(dbClient);
       return {
@@ -105,7 +117,7 @@ class UserService {
         userData.user_id
       );
       const userDetails: userLoginData = userDetailsResult.rows[0];
-      
+
       if (
         !comparePasswords(
           payload.password,
@@ -134,22 +146,22 @@ class UserService {
     } finally {
       release(dbClient);
     }
-}
-static async setUserProfile(req:ProfileRequest):Promise<ProfileResponse>{
-  const dbClient=await client();
-  try {
-    const { first_name,
-      last_name,
-      company_name,
-      email,
-      address1,
-      address2,
-      city,
-      state,
-      post_code,
-      country,
-      country_code,
-      mobile } = req.body;
+  }
+  static async setUserProfile(req: ProfileRequest): Promise<ProfileResponse> {
+    const dbClient = await client();
+    try {
+      const { first_name,
+        last_name,
+        company_name,
+        email,
+        address1,
+        address2,
+        city,
+        state,
+        post_code,
+        country,
+        country_code,
+        mobile } = req.body;
 
       const valid = validation("profile", req.body);
 
@@ -177,25 +189,61 @@ static async setUserProfile(req:ProfileRequest):Promise<ProfileResponse>{
       return {
         message: "Profile Created successfully!",
         id: result.id,
-        first_name:result.first_name,
-        last_name:result.last_name,
-        company_name:result.company_name,
-        address1:result.address1,
-        address2:result.address2,
+        first_name: result.first_name,
+        last_name: result.last_name,
+        company_name: result.company_name,
+        address1: result.address1,
+        address2: result.address2,
         email: result.email,
         status: 200,
-        country:country,
+        country: country,
         country_code: result.country_code,
         mobile: result.mobile,
-        city:result.city,
-        state:result.state,
-        post_code:result.post_code
+        city: result.city,
+        state: result.state,
+        post_code: result.post_code
       };
-  } catch (error) {
-    throw error
-  }finally{
-    release(dbClient)
+    } catch (error) {
+      throw error
+    } finally {
+      release(dbClient)
+    }
   }
+  static async getUserProfileById(req:ProfileRequest): Promise<ProfileResponse> {
+    const dbClient = await client();
+    const userId = req.params.userId; 
+    try {
+      const userProfileResult = await UserRepository.findUserProfileById(
+        dbClient,
+        userId
+      );
+      const userProfile = userProfileResult.rows[0];
+      if (!userProfile) {
+        throw new customError(`User profile not found`, 404);
+      }
+      return {
+        message: "User profile retrieved successfully",
+        status: 200,
+        id: userProfile.id,
+        first_name: userProfile.first_name,
+        last_name: userProfile.last_name,
+        company_name: userProfile.company_name,
+        address1: userProfile.address1,
+        address2: userProfile.address2,
+        email: userProfile.email,
+        country: userProfile.country,
+        country_code: userProfile.country_code,
+        mobile: userProfile.mobile,
+        city: userProfile.city,
+        state: userProfile.state,
+        post_code: userProfile.post_code
+      };
+    } catch (error) {
+      throw error;
+    } finally {
+      release(dbClient);
+    }
+  }
+  
 }
-}
-export {UserService}
+export { UserService }

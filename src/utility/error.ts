@@ -1,4 +1,3 @@
-// Custom error class
 export class customError extends Error {
   status: number;
   details?: any;

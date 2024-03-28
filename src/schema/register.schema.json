@@ -7,7 +7,7 @@
       "format": "email"
     },
     "country_code":{"type":"string"},
-    "mobile":{"type":"string","minLength":10},
+    "mobile":{"type":"string","minLength":9},
     "password":{"type":"string","minLength":8},
     "confirm_password":{"type":"string"}
   },

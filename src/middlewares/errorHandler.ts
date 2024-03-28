@@ -9,7 +9,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  console.log("error from the middleware", err);
+  console.log("error from the middleware: ", err);
 
   if (err instanceof customError) {
     res.status(err.status).json({

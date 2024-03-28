@@ -68,5 +68,20 @@ class UserRepository {
       throw error
     }
   }
+  static async findUserProfileById(
+    client: PoolClient,
+    userId: string
+  ): Promise<QueryResult> {
+    try {
+      const result = await client.query(
+        "SELECT * FROM tbl_user_profile WHERE user_id = $1",
+        [userId]
+      );
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 }
 export { UserRepository };

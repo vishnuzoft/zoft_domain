@@ -14,6 +14,9 @@ export interface ProfileBody{
 }
 
 export interface ProfileRequest  {
+  params: {
+    userId: string;
+};
     body: ProfileBody;
   }
   export interface ProfileResponse {
