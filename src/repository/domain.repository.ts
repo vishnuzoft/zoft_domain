@@ -11,7 +11,7 @@ class DomainRepository {
             const result = await client.query("INSERT INTO tbl_domain_registrations (domain, years, payment_id, auto_renew) VALUES ($1, $2, $3, $4) RETURNING *",
                 [register.domain, register.years, register.paymentId, register.autoRenew])
 
-            //console.log(result.rows);
+            //console.log(apiResponse);
             return apiResponse;
         } catch (error) {
             throw (error)

@@ -10,18 +10,16 @@ export interface ProfileBody{
     post_code:string,
     country:string,
     country_code:string,
-    mobile:string
+    mobile:string,
 }
 
-export interface ProfileRequest  {
-  params: {
-    userId: string;
-};
+export interface ProfileRequest {
     body: ProfileBody;
   }
   export interface ProfileResponse {
+    profile_id: string;
+    user_id:string;
     message: string;
-    id: number;
     email: string;
     status: number;
     country_code:string;

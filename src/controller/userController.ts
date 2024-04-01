@@ -1,5 +1,5 @@
 import { NextFunction,Response } from "express";
-import { ProfileRequest, loginRequest, registerReq } from "../models";
+import { AuthenticatedRequest, ProfileReq, ProfileRequest, loginRequest, registerReq } from "../models";
 import { UserService } from "../services";
 
 class UserController {
@@ -27,30 +27,33 @@ class UserController {
       next(error);
     }
   };
-  static setUserProfile = async (
-    req: ProfileRequest,
+  static async setUserProfile (
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
-  ) => {
+  ):Promise<void> {
     try {
       const response = await UserService.setUserProfile(req);
-      return res.json(response);
+      res.json(response);
     } catch (error) {
       next(error);
     }
   }
-  static getUserProfileById = async (
-    req: ProfileRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
+  // Add this method to UserController.ts
+static async getUserProfileById(
+  req: ProfileReq,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
       const response = await UserService.getUserProfileById(req);
-      return res.json(response);
-    } catch (error) {
+      console.log(req.profile_id);
+      
+      res.json(response);
+  } catch (error) {
       next(error);
-    }
-  };
-  
+  }
+}
+
 };
 export {UserController}

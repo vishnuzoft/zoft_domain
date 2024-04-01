@@ -11,10 +11,10 @@ export interface loginRequest extends Request {
 export interface loginResponse {
   status:number;
   message: string;
-  id: number;
+  id: string;
   email: string;
   token:string;
 }
 export interface userLoginData {
-  id: number;
+  user_id: string;
 }

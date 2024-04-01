@@ -14,7 +14,7 @@ export interface registerReq extends Request {
 }
 export interface RegistrationResponse {
   message: string;
-  id: number;
+  id: string;
   email: string;
   status: number;
   country_code:string;
