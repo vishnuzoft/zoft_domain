@@ -9,7 +9,7 @@ export interface user {
 }
 
 export interface User{
-    user_id: number;
+    user_id: string;
     email: string;
     country_code:string;
     mobile:string;

@@ -1,27 +1,27 @@
 import * as dotenv from 'dotenv';
 import {
   NextFunction,
-  Request,
   Response,
 } from 'express';
 
 import { environment } from '../config';
+import { AuthenticatedRequest } from '../models';
 
 const jwt = require("jsonwebtoken");
 dotenv.config();
 
 // Extend the Request type to include userId
-interface AuthenticatedRequest extends Request {
-  userId?: string;
-}
+// interface AuthenticatedRequest extends Request {
+//   user_id?: string;
+// }
 
-export const AuthMiddleware = (
+export const Authmiddleware = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   const token: string | undefined = req.headers.authorization;
-  // console.log("token", token);
+  //console.log("token", token);
   if (!token) {
     return res.status(401).json({
       auth: false,
@@ -40,8 +40,7 @@ export const AuthMiddleware = (
         message: "Invalid token. Authentication failed.",
       });
     } else {
-      req.userId = decoded.userId;
-
+      req.user_id = decoded.user_id;
       next();
     }
   });

@@ -1,6 +1,5 @@
-import axios from 'axios';
-import { client, environment, release } from '../config';
-import { NamesiloAPI, parseResponseData } from '../utility';
+import { client, release } from '../config';
+import { NamesiloAPI } from '../utility';
 import { Request, Response } from 'express';
 import { DomainRegister, DomainResponse } from '../models';
 import { DomainRepository } from '../repository';
@@ -36,7 +35,7 @@ class DomainService {
 
       console.log("regdata", registerData);
 
-      
+
       const registrationResult = await NamesiloAPI.registerDomain(registerData);
       const dbResult = await DomainRepository.registerDomain(dbClient, registerData);
       console.log("regresult: ", registrationResult);
