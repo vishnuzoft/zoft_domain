@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { DomainService } from '../services';
+import { DomainReq } from '../models';
 
 
 class DomainController {
@@ -14,6 +15,22 @@ class DomainController {
   static async registerDomain(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const response = await DomainService.registerDomain(req);
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getAllDomains(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const response = await DomainService.getAllDomains(req);
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getDomainById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const response = await DomainService.getDomainById(req);
       res.json(response);
     } catch (error) {
       next(error);
