@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS tbl_user_account(
 
 CREATE TABLE IF NOT EXISTS tbl_user_profile(
     profile_id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES tbl_user_account(user_id) ON DELETE CASCADE,
+    user_id INTEGER,
     email VARCHAR(255) NOT NULL,
     country_code VARCHAR(5) NOT NULL,
     mobile VARCHAR(15) NOT NULL,
@@ -27,14 +27,17 @@ CREATE TABLE IF NOT EXISTS tbl_user_profile(
     state VARCHAR(255) NOT NULL,
     country VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
 );
 CREATE TABLE IF NOT EXISTS tbl_domain_registrations (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER,
   domain VARCHAR(255) NOT NULL UNIQUE,
   years INTEGER NOT NULL,
   payment_id VARCHAR(255),
   auto_renew BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
 );

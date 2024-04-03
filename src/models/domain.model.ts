@@ -5,6 +5,7 @@ export interface DomainRegister {
   autoRenew: boolean;
 }
 export interface DomainResponse {
+  namesilo: any;
   status: number;
   id: number,
   message: string,
