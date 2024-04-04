@@ -5,3 +5,5 @@ export * from "./compileSchema";
 export * from "./tokenGenerator";
 export * from "./parseResponse";
 export * from "./namesiloApi";
+export * from "./domainOptions";
+export * from "./extensions";

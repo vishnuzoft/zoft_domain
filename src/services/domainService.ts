@@ -44,8 +44,6 @@ class DomainService {
       }
       console.log("regresult: ", registrationResult);
       //console.log("dbresult", dbResult);
-      console.log();
-
 
       return registrationResult;
     } catch (error) {
