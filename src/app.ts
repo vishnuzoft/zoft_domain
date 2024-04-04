@@ -2,12 +2,7 @@ import Ajv from 'ajv';
 import AjvFormats from 'ajv-formats';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import express, {
-  Request,
-  Response,
-  request,
-  response,
-} from 'express';
+import express from 'express';
 import http from 'http';
 
 import { environment } from './config';
@@ -40,9 +35,7 @@ app.use(
 app.use("/public", express.static("public"));
 
 app.use("/api", V1);
-app.get('/', (req, res) => {
-  res.send('helloworld');
-});
+
 app.use(errorHandler);
 
 const server = newServer.listen(PORT,IP_ADDRESS ,() => {
