@@ -1,5 +1,5 @@
 import { PoolClient } from "pg";
-import { DomainRegister, DomainResponse } from "../models";
+import { DomainRegister, DomainResponse, OrderDetails } from "../models";
 import { NamesiloAPI } from "../utility";
 
 class DomainRepository {
@@ -27,7 +27,7 @@ class DomainRepository {
     }
     static async getDomainById(client: PoolClient, domainId: string): Promise<DomainResponse> {
         try {
-            // Fetch domain by ID from the database
+            
             const result = await client.query(
                 "SELECT domain, years, payment_id, auto_renew FROM tbl_domain_registrations WHERE id = $1",
                 [domainId]

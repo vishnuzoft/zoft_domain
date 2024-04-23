@@ -7,3 +7,4 @@ export * from "./parseResponse";
 export * from "./namesiloApi";
 export * from "./domainOptions";
 export * from "./extensions";
+export * from "./calculateAmount";

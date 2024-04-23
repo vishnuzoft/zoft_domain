@@ -8,3 +8,6 @@ export * from "./response.model";
 export * from "./ajvError.model";
 export * from "./profile.model";
 export * from "./domain.model";
+export * from "./payment.model";
+export * from "./order.model";
+export * from "./cartItem.model";
