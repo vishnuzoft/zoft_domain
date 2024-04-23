@@ -1,0 +1,12 @@
+{
+    "$id": "cart",
+    "type": "object",
+    "properties": {
+      "domain": { "type": "string" },
+      "price": { "type": "string" },
+      "duration": { "type": "string" }
+    },
+    "required": ["domain", "price", "duration"],
+    "additionalProperties": false
+  }
+  
