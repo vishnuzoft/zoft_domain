@@ -12,6 +12,14 @@ class DomainController {
       next(error);
     }
   }
+  static async checkTransferAvailability(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const response = await DomainService.checkTransferAvailability(req);
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
   static async registerDomain(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const response = await DomainService.registerDomain(req);

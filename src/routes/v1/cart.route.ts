@@ -9,5 +9,6 @@ const router = express.Router();
 router.post('/add-to-cart', Authmiddleware, CartController.addToCart);
 router.get('/cart-items', Authmiddleware, CartController.getCartItems);
 router.delete('/remove-from-cart/:id', Authmiddleware, CartController.deleteCartItem);
+router.post('/checkout',CartController.createOrderItem);
 
 export { router as CartRoute };

@@ -3,8 +3,6 @@ import { NamesiloAPI, calculateAmount, customError } from '../utility';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, DomainRegister, DomainResponse, PaymentDetails } from '../models';
 import { DomainRepository } from '../repository';
-import Stripe from 'stripe';
-
 
 
 class DomainService {
@@ -13,10 +11,19 @@ class DomainService {
       
       const search = req.query.search as string;
       const domains = Array.isArray(search) ? search : [search];
-
       const availabilityData = await NamesiloAPI.checkDomainAvailability(domains);
       
       return availabilityData;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async checkTransferAvailability(req:Request): Promise<Response> {
+    try {
+      const search = req.query.search as string;
+      const domains = Array.isArray(search) ? search : [search];
+      const response = await NamesiloAPI.checkTransferAvailability(domains);
+      return response;
     } catch (error) {
       throw error;
     }

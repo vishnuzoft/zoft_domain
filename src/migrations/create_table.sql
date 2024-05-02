@@ -51,15 +51,38 @@ CREATE TABLE IF NOT EXISTS tbl_domain_cart (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id)
 );
-CREATE TABLE IF NOT EXISTS tbl_domain_order(
-  order_id SERIAL PRIMARY KEY,
-  user_id INTEGER,
-  order_status VARCHAR(255),
-  payment_status BOOLEAN,
-  domain VARCHAR(255) NOT NULL,
-  price DECIMAL(10,2) NOT NULL,
-  duration INTEGER NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id)
-)
+CREATE TABLE IF NOT EXISTS tbl_domain_order_items (
+    order_item_id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    cart_id INTEGER,
+    domain VARCHAR(255) NOT NULL,
+    duration INTEGER NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id),
+    FOREIGN KEY (cart_id) REFERENCES tbl_domain_cart(cart_id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_domain_payments (
+    payment_id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    order_item_id INTEGER,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id),
+    FOREIGN KEY (order_item_id) REFERENCES tbl_domain_order_items(order_item_id)
+);
+
+CREATE TABLE IF NOT EXISTS tbl_domain_orders (
+    order_id SERIAL PRIMARY KEY,
+    user_id INTEGER,--set not null
+    payment_id INTEGER,
+    order_status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (payment_id) REFERENCES tbl_domain_payments(payment_id),
+    FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id)
+);
+
+
