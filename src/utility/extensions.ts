@@ -3,5 +3,5 @@ export const extensions = [
     '.tv', '.me', '.us', '.uk', '.ca', '.au', '.de', '.fr', '.jp', '.cn',
     '.ru', '.it', '.nl', '.br', '.es', '.se', '.mx', '.ch', '.eu', '.at',
     '.be', '.dk', '.no', '.fi', '.gr', '.pt', '.pl', '.cz', '.hu', '.ie',
-    '.sg', '.ar', '.tr', '.kr', '.in', '.hk', '.vn', '.th', '.id', '.ph'
+    '.sg', '.ar', '.tr', '.kr', '.in', '.hk', '.vn', '.th', '.id','.asc','.as'
 ];

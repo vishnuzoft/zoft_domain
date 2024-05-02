@@ -1,5 +1,5 @@
 import { PoolClient } from "pg";
-import { DomainRegister, DomainResponse, OrderDetails } from "../models";
+import { DomainRegister, DomainResponse,} from "../models";
 import { NamesiloAPI } from "../utility";
 
 class DomainRepository {
