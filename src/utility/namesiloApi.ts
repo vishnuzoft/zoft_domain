@@ -49,15 +49,14 @@ class NamesiloAPI {
     }
     static async checkTransferAvailability(domains:string[]): Promise<any> {
         try {
-            const domainOptions = generateDomainOptions(domains,extensions);
-
+            
             const endpoint = `${environment.API_URL}/checkTransferAvailability`;
             const response = await axios.get(endpoint, {
                 params: {
                     version: environment.API_VERSION,
                     type: environment.API_TYPE,
                     key: environment.API_KEY,
-                    domains: domainOptions.join(',')
+                    domains
                 }
             });
 
