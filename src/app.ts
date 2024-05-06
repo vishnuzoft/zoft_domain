@@ -38,6 +38,7 @@ app.use("/api", V1);
 
 app.use(errorHandler);
 
-const server = newServer.listen(PORT,0.0.0.0,() => {
-  console.log(`server is running on the port http://${IP_ADDRESS}:${PORT}`);
+const server = newServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on the port http://0.0.0.0:${PORT}`);
 });
+
