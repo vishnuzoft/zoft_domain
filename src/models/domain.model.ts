@@ -2,7 +2,7 @@ export interface DomainRegister {
   domain: string;
   years: string;
   paymentId?: string;
-  autoRenew: boolean;
+  auto_renew: boolean;
 }
 export interface DomainResponse {
   namesilo: any;
@@ -12,7 +12,19 @@ export interface DomainResponse {
   domain: string;
   years: number;
   paymentId?: string;
-  autoRenew: boolean;
+  auto_renew: boolean;
+}
+interface Domain {
+  domain: string;
+  created_at: string;
+  payment_id: string | null;
+  auto_renew: boolean;
+  expiration_date: string;
+};
+export interface GetDomains {
+  data: DomainResponse[];
+  message: string;
+  status: number;
 }
 
 export interface DomainReq extends Request {

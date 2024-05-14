@@ -37,8 +37,10 @@ app.use("/public", express.static("public"));
 app.use("/api", V1);
 
 app.use(errorHandler);
-
-const server = newServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on the port http://0.0.0.0:${PORT}`);
+app.get('/', (req, res) => {
+  res.send('Server running');
+});
+const server = newServer.listen(PORT, IP_ADDRESS, () => {
+  console.log(`Server is running on the port http://${IP_ADDRESS}:${PORT}`);
 });
 

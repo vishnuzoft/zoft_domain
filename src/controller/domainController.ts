@@ -28,6 +28,15 @@ class DomainController {
       next(error);
     }
   }
+  static async renewDomain(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const response = await DomainService.renewDomain(req);
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getAllDomains(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const response = await DomainService.getAllDomains(req);
@@ -39,6 +48,14 @@ class DomainController {
   static async getDomainById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const response = await DomainService.getDomainById(req);
+      res.json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getDomainInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const response = await DomainService.getDomainInfo(req);
       res.json(response);
     } catch (error) {
       next(error);

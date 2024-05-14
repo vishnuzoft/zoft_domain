@@ -8,3 +8,5 @@ export * from "./namesiloApi";
 export * from "./domainOptions";
 export * from "./extensions";
 export * from "./calculateAmount";
+export * from "./domainExpirationDate";
+export * from "./findStatusofDomain";
