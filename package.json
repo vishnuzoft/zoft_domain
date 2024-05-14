@@ -8,7 +8,7 @@
     "start": "node dist/src/app.js",
     "build":"tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate": "ts-node migration.ts"
+    "install": "ts-node migration.ts"
   },
   "keywords": [],
   "author": "",
