@@ -138,7 +138,7 @@ console.log("sdfsfdsf",userDetails.user_id);
         token_secret,
         { expiresIn: "24h" }
       );
-console.log(accessToken);
+//console.log(accessToken);
 
       return {
         message: "Successfully logged in",
