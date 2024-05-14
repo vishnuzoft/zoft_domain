@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS tbl_user_account(
     password_salt VARCHAR(255) NOT NULL,
     token VARCHAR(255),
     token_generation_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    password_recovery_token varchar(255),
+    recovery_token_time TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -36,7 +38,9 @@ CREATE TABLE IF NOT EXISTS tbl_domain_registrations (
   domain VARCHAR(255) NOT NULL UNIQUE,
   years INTEGER NOT NULL,
   payment_id VARCHAR(255),
-  auto_renew BOOLEAN DEFAULT FALSE,
+  auto_renew BOOLEAN,
+  expiration_date TIMESTAMP,
+  status VARCHAR(10),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)

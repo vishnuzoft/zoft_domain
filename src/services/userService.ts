@@ -11,6 +11,7 @@ import {
   AuthenticatedRequest,
   loginRequest,
   loginResponse,
+  PasswordReq,
   ProfileBody,
   ProfileReq,
   ProfileRequest,
@@ -235,6 +236,18 @@ console.log(accessToken);
       throw error;
     } finally {
       release(dbClient);
+    }
+  }
+  static async forgotPassword(req:PasswordReq):Promise<any>{
+    const dbClient=await client();
+    try {
+      const email=req.body.email
+      const user=await UserRepository.findUserByEmail(dbClient,email)
+      if (!user) {
+        throw new customError("User Not Found With Given Email", 404);
+      }
+    } catch (error) {
+      throw error
     }
   }
 }

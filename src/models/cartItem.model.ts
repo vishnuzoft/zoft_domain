@@ -3,7 +3,14 @@ export interface CartItem {
     price: number;
     duration: number;
 }
-
+export interface CartItems {
+    status:number;
+    message:string;
+    cart_id:number
+    domain: string;
+    price: number;
+    duration: number;
+}
 export interface CartResponse {
     status:number;
     message: string;
@@ -19,7 +26,7 @@ export interface GetCartItemsResponse {
     cartItems: CartItem[];
 }
 
-export interface DeleteResponse {
+export interface GetCartItemByIdResponse {
     status:number;
     message: string;
     cart_id: number;

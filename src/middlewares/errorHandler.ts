@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 
 import { customError } from "../utility";
+import { error } from "ajv/dist/vocabularies/applicator/dependencies";
 
-// Middleware to handle errors globally
 export function errorHandler(
   err: Error,
   req: Request,
@@ -19,7 +19,7 @@ export function errorHandler(
     });
   } else {
     res.status(500).json({
-      error: "Internal Server Error",
+      error: `Internal Server Error: ${err.message}`,
       status: 500,
       message: "failed",
     });
