@@ -8,7 +8,7 @@ class NamesiloAPI {
 
     static async registerDomain(registerData: DomainRegister): Promise<DomainResponse> {
         try {
-            console.log(environment.API_KEY);
+            //console.log(environment.API_KEY);
 
             const response = await axios.get(`${environment.API_URL}/registerDomain`, {
                 params: {
