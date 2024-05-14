@@ -132,7 +132,7 @@ console.log("sdfsfdsf",userDetails.user_id);
       ) {
         throw new customError("Password incorrect", 400);
       }
-      const token_secret = process.env.jwt_secret;
+      const token_secret = environment.JWT_SECRET;
       const accessToken = jwt.sign(
         { user_id: userDetails.user_id },
         token_secret,
