@@ -58,6 +58,9 @@ class NamesiloAPI {
                     key: environment.API_KEY,
                     domains: domainOptions.join(',')
                 }
+                // params:setCommonQueryParams({
+                //     domains: domainOptions.join(',')
+                // })
             });
 
             return parseResponseData(response.data);
