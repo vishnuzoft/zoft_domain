@@ -48,14 +48,17 @@ console.log(auto_renew);
       const registrationResult = await NamesiloAPI.registerDomain(registerData);
 
       //const dbResult = await DomainRepository.registerDomain(dbClient, user_id, registerData);
-      if (registrationResult.namesilo.reply[0].code[0] === '262') {
+      if (registrationResult.namesilo.reply[0].code[0] === '300') {
         const dbResult = await DomainRepository.registerDomain(dbClient, user_id, registerData);
         console.log("dbresult", dbResult);
       }
     
       console.log("regresult: ", registrationResult);
       //console.log("dbresult", dbResult);
-
+// Validate input
+// if (!domain || !years || years < 1 || years > 10) {
+//   throw new Error('Invalid input');
+// }
       return registrationResult;
     } catch (error) {
       throw error;

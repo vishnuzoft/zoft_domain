@@ -23,17 +23,17 @@ class CartRepository {
             throw error;
         }
     }
-    static async getCartItemById(client: PoolClient, cartId: number /*user_id: string*/): Promise<GetCartItemByIdResponse> {
+    static async getCartItemById(client: PoolClient, cartId: number, user_id: string): Promise<GetCartItemByIdResponse> {
         try {
-            const result = await client.query("SELECT cart_id, domain, price, duration FROM tbl_domain_cart WHERE cart_id = $1", [cartId/*, user_id*/]);
+            const result = await client.query("SELECT cart_id, domain, price, duration FROM tbl_domain_cart WHERE cart_id = $1 AND user_id=$2", [cartId, user_id]);
             return result.rows[0];
         } catch (error) {
             throw error;
         }
     }
-    static async deleteCartItem(client: PoolClient, cartId: number /*user_id: string*/): Promise<CartResponse> {
+    static async deleteCartItem(client: PoolClient, cartId: number ,user_id: string): Promise<CartResponse> {
         try {
-            const result = await client.query("DELETE FROM tbl_domain_cart WHERE cart_id = $1 RETURNING cart_id, domain, price, duration", [cartId]);
+            const result = await client.query("DELETE FROM tbl_domain_cart WHERE cart_id = $1 AND user_id=$2 RETURNING cart_id, domain, price, duration", [cartId,user_id]);
             return result.rows[0];
         } catch (error) {
             throw error;
