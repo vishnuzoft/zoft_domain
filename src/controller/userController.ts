@@ -1,5 +1,5 @@
 import { NextFunction,Response } from "express";
-import { AuthenticatedRequest, ProfileReq, ProfileRequest, loginRequest, registerReq } from "../models";
+import { AuthenticatedRequest, PasswordReq, ProfileReq, ProfileRequest, loginRequest, registerReq } from "../models";
 import { UserService } from "../services";
 
 class UserController {
@@ -54,6 +54,17 @@ static async getUserProfileById(
       next(error);
   }
 }
-
+static async forgotPassword(
+  req: PasswordReq,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+      const response = await UserService.forgotPassword(req);
+      res.json(response);
+  } catch (error) {
+      next(error);
+  }
+}
 };
 export {UserController}
