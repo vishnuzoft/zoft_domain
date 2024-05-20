@@ -89,4 +89,13 @@ CREATE TABLE IF NOT EXISTS tbl_domain_orders (
     FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS tbl_reset_password_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  token VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id)
+);
+
 

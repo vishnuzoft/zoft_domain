@@ -23,6 +23,7 @@ import {
   userLoginData,
 } from '../models';
 import {
+  TokenRepository,
   UserRepository,
 } from '../repository';
 import {
@@ -31,7 +32,9 @@ import {
   hashPassword,
   generateSalt,
   comparePasswords,
-  generateToken
+  generateToken,
+  createResetPasswordToken,
+  sendResetPasswordEmail
 } from '../utility';
 import { sendSms } from '../utility/smsSender';
 
@@ -238,16 +241,31 @@ console.log("sdfsfdsf",userDetails.user_id);
       release(dbClient);
     }
   }
-  static async forgotPassword(req:PasswordReq):Promise<any>{
-    const dbClient=await client();
+  static async forgotPassword(req: PasswordReq): Promise<any> {
+    const dbClient = await client();
     try {
-      const email=req.body.email
-      const user=await UserRepository.findUserByEmail(dbClient,email)
+      const email = req.body.email;
+      const user = await UserRepository.findUserByEmail(dbClient, email);
       if (!user) {
         throw new customError("User Not Found With Given Email", 404);
       }
+
+      const user_id = user.rows[0].user_id;
+      const resetToken = createResetPasswordToken();
+      const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
+  
+      await TokenRepository.createResetPasswordToken(dbClient, user_id, resetToken, expiresAt);
+  
+      const resetUrl = `${environment.FRONTEND_URL}/reset-password/${resetToken}`;
+      console.log(resetUrl);
+      
+      await sendResetPasswordEmail(user.rows[0].email, resetUrl);
+  
+      return { message: "Reset password link sent to your email" };
     } catch (error) {
-      throw error
+      throw error;
+    } finally {
+      release(dbClient);
     }
   }
 }
