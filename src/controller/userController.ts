@@ -1,4 +1,4 @@
-import { NextFunction,Response } from "express";
+import { Request,NextFunction,Response } from "express";
 import { AuthenticatedRequest, PasswordReq, ProfileReq, ProfileRequest, loginRequest, registerReq } from "../models";
 import { UserService } from "../services";
 
@@ -64,7 +64,7 @@ static async forgotPassword(
       res.json(response);
   } catch (error) {
       next(error);
-  }
+  } 
 }
 };
 export {UserController}

@@ -9,5 +9,13 @@ import { Request } from "express";
 // }
 
 export interface PasswordReq extends Request {
-  email:string
+  body: {
+    email: string;
+  };
+}
+export interface ResetPasswordToken {
+  user_id: string;
+  token: string;
+  created_at: Date;
+  expires_at: Date;
 }
