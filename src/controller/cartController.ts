@@ -14,7 +14,7 @@ class CartController {
 
     static async getCartItems(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const cartItems: GetCartItemsResponse = await CartService.getCartItems();
+            const cartItems: GetCartItemsResponse = await CartService.getCartItems(req);
             res.json(cartItems);
         } catch (error) {
             next(error);
