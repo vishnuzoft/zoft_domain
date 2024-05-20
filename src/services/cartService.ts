@@ -35,10 +35,11 @@ class CartService {
         }
     }
 
-    static async getCartItems(): Promise<GetCartItemsResponse> {
+    static async getCartItems(req:AuthenticatedRequest): Promise<GetCartItemsResponse> {
         const dbClient = await client();
         try {
-            const cartItems = await CartRepository.getCartItems(dbClient);
+            const user_id=req.user_id || '';
+            const cartItems = await CartRepository.getCartItems(dbClient,user_id);
             return {
                 status: 200,
                 message: "Cart Items Retrieved Successfully",

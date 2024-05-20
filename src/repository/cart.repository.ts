@@ -15,9 +15,9 @@ class CartRepository {
     }
 
 
-    static async getCartItems(client: PoolClient): Promise<CartItem[]> {
+    static async getCartItems(client: PoolClient,user_id:string): Promise<CartItem[]> {
         try {
-            const result = await client.query("SELECT cart_id,domain, price, duration FROM tbl_domain_cart");
+            const result = await client.query("SELECT cart_id,domain, price, duration,user_id FROM tbl_domain_cart WHERE user_id = $1",[user_id]);
             return result.rows;
         } catch (error) {
             throw error;
