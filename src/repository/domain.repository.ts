@@ -1,22 +1,22 @@
-import { PoolClient } from "pg";
+import { PoolClient, QueryResult } from "pg";
 import { DomainRegister, DomainResponse,} from "../models";
 import { NamesiloAPI, domainExpirationDate, findStatus } from "../utility";
 
 class DomainRepository {
-    static async registerDomain(client: PoolClient, user_id: string, register: DomainRegister): Promise<DomainResponse> {
+    static async registerDomain(client: PoolClient, user_id: string, register: DomainRegister): Promise<QueryResult> {
 
         try {
-            const apiResponse = await NamesiloAPI.registerDomain(register);
-            const expirationDate = domainExpirationDate(parseInt(register.years));
-            //sug:make table for date only if need.
-            const status = findStatus(new Date(), expirationDate);
+            
+            const expirationDate=register.expirationDate;
+            //sugg:make table for date only if need.
+            const status = register.status
             const result = await client.query(
                 "INSERT INTO tbl_domain_registrations (domain, years, payment_id, auto_renew, user_id, expiration_date,status) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING *",
-                [register.domain, register.years, register.paymentId, register.auto_renew, user_id, expirationDate,status]
+                [register.domain, register.years, register.payment_id, register.auto_renew, user_id, expirationDate,status]
               );
 
-            //console.log(apiResponse);
-            return apiResponse;
+            console.log(result);
+            return result;
         } catch (error) {
             throw (error)
         }

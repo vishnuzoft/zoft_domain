@@ -31,5 +31,5 @@ export const environment = {
   EMAIL_SECURE:process.env.EMAIL_SECURE,
   EMAIL_POOL:process.env.EMAIL_POOL,
   FRONTEND_URL:process.env.FRONTEND_URL,
-  EMAIL_FROM:process.env.EMAIL_FROM
+  EMAIL_FROM:process.env.EMAIL_FROM,
 };

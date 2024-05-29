@@ -37,7 +37,7 @@ app.use("/public", express.static("public"));
 app.use("/api", V1);
 
 app.use(errorHandler);
-app.get('/', (req, res) => {
+app.get('/success', (req, res) => {
   res.send('Server running');
 });
 const server = newServer.listen(PORT, IP_ADDRESS, () => {

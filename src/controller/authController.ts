@@ -1,15 +1,15 @@
 import { Request,NextFunction,Response } from "express";
 import { AuthenticatedRequest, PasswordReq, ProfileReq, ProfileRequest, loginRequest, registerReq } from "../models";
-import { UserService } from "../services";
+import { AuthService } from "../services";
 
-class UserController {
+class AuthController {
   static UserRegister = async (
     req: registerReq,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const response = await UserService.registerUser(req);
+      const response = await AuthService.registerUser(req);
       return res.json(response);
     } catch (error) {
       next(error);
@@ -21,7 +21,7 @@ class UserController {
     next: NextFunction
   ) => {
     try {
-      const response = await UserService.loginUser(req);
+      const response = await AuthService.loginUser(req);
       return res.json(response);
     } catch (error) {
       next(error);
@@ -33,7 +33,7 @@ class UserController {
     next: NextFunction
   ):Promise<void> {
     try {
-      const response = await UserService.setUserProfile(req);
+      const response = await AuthService.setUserProfile(req);
       res.json(response);
     } catch (error) {
       next(error);
@@ -46,7 +46,7 @@ static async getUserProfileById(
   next: NextFunction
 ): Promise<void> {
   try {
-      const response = await UserService.getUserProfileById(req);
+      const response = await AuthService.getUserProfileById(req);
       console.log(req.profile_id);
       
       res.json(response);
@@ -60,11 +60,11 @@ static async forgotPassword(
   next: NextFunction
 ): Promise<void> {
   try {
-      const response = await UserService.forgotPassword(req);
+      const response = await AuthService.forgotPassword(req);
       res.json(response);
   } catch (error) {
       next(error);
   } 
 }
 };
-export {UserController}
+export {AuthController}

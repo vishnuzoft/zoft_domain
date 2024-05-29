@@ -24,7 +24,7 @@ import {
 } from '../models';
 import {
   TokenRepository,
-  UserRepository,
+  AuthRepository,
 } from '../repository';
 import {
   customError,
@@ -40,11 +40,19 @@ import { sendSms } from '../utility/smsSender';
 
 const jwt = require('jsonwebtoken');
 
-class UserService {
+class AuthService {
   static async registerUser(req: registerReq): Promise<RegistrationResponse> {
     const dbClient = await client();
     try {
       const { email, country_code, mobile, password, confirm_password } = req.body;
+      
+      console.log('Received data:', req.body);
+
+      // const mobileInt = parseInt(mobile, 10);
+      // if (isNaN(mobileInt)) {
+      //   throw new customError("Invalid mobile number format", 400);
+      // }
+
       const valid = validation("register", req.body);
 
       if (password !== confirm_password) {
@@ -55,7 +63,7 @@ class UserService {
       const passwordHash = hashPassword(password, passwordSalt);
 
       await begin(dbClient);
-      const existingUser = await UserRepository.findUserByEmail(dbClient, email);
+      const existingUser = await AuthRepository.findUserByEmail(dbClient, email);
       if (existingUser.rows.length > 0) {
         throw new customError(`Email '${email}' is already registered.`, 400);
       }
@@ -73,7 +81,7 @@ class UserService {
       const token = generateToken(32);
 
 
-      const result = await UserRepository.createUser(dbClient, user, token);
+      const result = await AuthRepository.RegisterUser(dbClient, user, token);
 
       const currentDatetime = new Date();
       const formattedDatetime = currentDatetime
@@ -111,7 +119,7 @@ class UserService {
 
     try {
       const valid = validation("login", req.body);
-      const userResult: any = await UserRepository.findUserByEmail(
+      const userResult: any = await AuthRepository.findUserByEmail(
         dbClient,
         payload.email
       );
@@ -119,7 +127,7 @@ class UserService {
         throw new customError(`User not found`, 400);
       }
       const userData: User = userResult.rows[0];
-      const userDetailsResult = await UserRepository.findUserById(
+      const userDetailsResult = await AuthRepository.findUserById(
         dbClient,
         userData.user_id
       );
@@ -158,7 +166,6 @@ console.log("sdfsfdsf",userDetails.user_id);
   }
   static async setUserProfile(req: AuthenticatedRequest): Promise<ProfileResponse> {
     
-    
     const dbClient = await client();
     try {
       const { first_name,
@@ -196,7 +203,7 @@ console.log("sdfsfdsf",userDetails.user_id);
       };
       console.log(profile);
 
-      const result = await UserRepository.setUserProfile(dbClient,user_id,profile);
+      const result = await AuthRepository.setUserProfile(dbClient,user_id,profile);
 
       await commit(dbClient);
 
@@ -229,7 +236,7 @@ console.log("sdfsfdsf",userDetails.user_id);
     try {
       const profileId = req.params.profile_id as string;
       console.log(profileId);
-      const userProfileResult = await UserRepository.findUserProfileById(dbClient, profileId);
+      const userProfileResult = await AuthRepository.findUserProfileById(dbClient, profileId);
       const userProfile = userProfileResult.rows[0];
       if (!userProfile) {
         throw new customError("User profile not found", 404);
@@ -245,7 +252,7 @@ console.log("sdfsfdsf",userDetails.user_id);
     const dbClient = await client();
     try {
       const email = req.body.email;
-      const user = await UserRepository.findUserByEmail(dbClient, email);
+      const user = await AuthRepository.findUserByEmail(dbClient, email);
       if (!user) {
         throw new customError("User Not Found With Given Email", 404);
       }
@@ -269,4 +276,4 @@ console.log("sdfsfdsf",userDetails.user_id);
     }
   }
 }
-export { UserService }
+export { AuthService }

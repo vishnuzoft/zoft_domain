@@ -1,18 +1,21 @@
 export interface DomainRegister {
+  expirationDate?:Date;
+  status?:string;
   domain: string;
   years: string;
-  paymentId?: string;
+  payment_id?: string;
   auto_renew: boolean;
 }
 export interface DomainResponse {
-  namesilo: any;
+  namesilo:any;
   status: number;
   id: number,
   message: string,
   domain: string;
-  years: number;
+  years: string;
   paymentId?: string;
   auto_renew: boolean;
+  
 }
 interface Domain {
   domain: string;
