@@ -20,14 +20,24 @@ class DomainController {
       next(error);
     }
   }
-  static async registerDomain(req: Request, res: Response, next: NextFunction): Promise<void> {
+  // static async registerDomain(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   try {
+  //     const response = await DomainService.registerDomain(req);
+  //     res.json(response);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+  
+  static async registerBulkDomains(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const response = await DomainService.registerDomain(req);
-      res.json(response);
+        const response = await DomainService.registerBulkDomains(req);
+        res.json(response);
     } catch (error) {
-      next(error);
+        next(error);
     }
-  }
+}
+
   static async renewDomain(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const response = await DomainService.renewDomain(req);

@@ -1,15 +1,15 @@
 import axios from 'axios';
 import { parseResponseData } from './parseResponse';
-import { DomainRegister, DomainResponse } from '../models';
+import { AuthenticatedRequest, DomainRegister, DomainResponse } from '../models';
 import { environment } from '../config';
 import { generateDomainOptions, extensions } from '../utility';
+import { PaymentService } from '../services';
 
 class NamesiloAPI {
 
     static async registerDomain(registerData: DomainRegister): Promise<DomainResponse> {
         try {
             //console.log(environment.API_KEY);
-
             const response = await axios.get(`${environment.API_URL}/registerDomain`, {
                 params: {
                     version: environment.API_VERSION,
@@ -18,8 +18,12 @@ class NamesiloAPI {
                     domain: registerData.domain,
                     years: registerData.years,
                     auto_renew: registerData.auto_renew ? 1 : 0,
+                    payment_id: registerData.payment_id
                 }
             });
+            
+            
+console.log(parseResponseData(response.data));
 
             return parseResponseData(response.data);
         } catch (error) {

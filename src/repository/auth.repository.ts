@@ -9,8 +9,8 @@ import {
   User
 } from '../models';
 
-class   UserRepository {
-  static async createUser(
+class AuthRepository {
+  static async RegisterUser(
     client: PoolClient,
     user: registerBody,
     token: string,
@@ -95,4 +95,4 @@ class   UserRepository {
     }
 }
 }
-export { UserRepository };
+export { AuthRepository };

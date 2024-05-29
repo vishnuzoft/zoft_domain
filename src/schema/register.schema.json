@@ -1,16 +1,33 @@
 {
-  "$id":"register",
+  "$id": "register",
   "type": "object",
   "properties": {
     "email": {
       "type": "string",
       "format": "email"
     },
-    "country_code":{"type":"string"},
-    "mobile":{"type":"string","minLength":9},
-    "password":{"type":"string","minLength":8},
-    "confirm_password":{"type":"string"}
+    "country_code": {
+      "type": "string"
+    },
+    "mobile": {
+      "type": "string",
+      "pattern":"^[1-9][0-9]*$",
+      "minLength":9
+    },
+    "password": {
+      "type": "string",
+      "minLength": 8
+    },
+    "confirm_password": {
+      "type": "string"
+    }
   },
-  "required": ["email","country_code","mobile","password","confirm_password"],
+  "required": [
+    "email",
+    "country_code",
+    "mobile",
+    "password",
+    "confirm_password"
+  ],
   "additionalProperties": false
 }
