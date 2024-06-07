@@ -27,14 +27,6 @@ class PaymentController {
         }
     }
 
-    static async confirmPayment(req: Request, res: Response, next: NextFunction) {
-        try {
-            const response = await PaymentService.confirmPayment(req);
-            res.json(response);
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 export { PaymentController };
