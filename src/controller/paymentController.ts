@@ -26,6 +26,14 @@ class PaymentController {
             next(error);
         }
     }
+    static async handleWebhookEvent(req:Request,res:Response,next:NextFunction){
+        try{
+            const response =await PaymentService.handleWebhookEvent(req);
+            res.json(response);
+        }catch(error){
+            next(error)
+        }
+    }
 
 }
 

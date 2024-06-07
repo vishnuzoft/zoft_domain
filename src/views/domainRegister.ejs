@@ -14,49 +14,55 @@
       height: 100%;
       overflow: hidden;
     }
-    .email-container {
+   .email-container {
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-    .logo {
-      max-height: 100px;
-    }
-    .content {
-      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
       padding: 20px;
-      width: 70%;
-      border-radius: 5px;
+      background-color: #ffffff;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      margin: 20px 0;
     }
-    .content h1 {
+   .logo {
+      max-height: 100px;
+      margin: 20px auto;
+      display: block;
+    }
+   .content {
+      padding: 20px;
+    }
+   .content h1 {
       font-weight: 300;
       margin-top: 0;
+      color: #333;
     }
-    .content p {
+   .content p {
       margin-top: 20px;
-    }
-    .footer {
-      margin-top: 20px;
-      text-align: center;
       color: #666;
     }
-    .domains-table {
+   .domains-table {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
+      border: 1px solid #ddd;
+      border-radius: 10px;
     }
-    .domains-table th, .domains-table td {
+   .domains-table th,.domains-table td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
     }
-    .domains-table th {
+   .domains-table th {
       background-color: #f2f2f2;
+    }
+   .footer {
+      margin-top: 20px;
+      text-align: center;
+      color: #666;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -80,7 +86,7 @@
         <tbody>
           <tr>
             <td><%= data.domains.domain %></td>
-            <td><%= data.domains.expiration_date ? data.domains.expiration_date.toISOString().split('T')[0] : '' %></td>
+            <td><%= data.domains.expiration_date? data.domains.expiration_date.toISOString().split('T')[0] : '' %></td>
             <td><%= data.domains.status %></td>
           </tr>
         </tbody>

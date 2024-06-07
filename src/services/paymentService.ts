@@ -130,6 +130,7 @@ static async handleWebhookEvent(req: Request): Promise<void> {
     const dbClient = await client();
     const sig = req.headers['stripe-signature'] || '';
     const webhookSecret = environment.STRIPE_WEBHOOK_SECRET || '';
+console.log(webhookSecret,sig);
 
     let event;
     try {
@@ -138,6 +139,7 @@ static async handleWebhookEvent(req: Request): Promise<void> {
         console.error('Webhook signature verification failed.', err);
         throw err;
     }
+console.log(event);
 
     switch (event.type) {
         case 'payment_intent.succeeded':
