@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS tbl_domain_cart (
 
 CREATE TABLE IF NOT EXISTS tbl_domain_payment_details (
   id SERIAL PRIMARY KEY,
-  user_id VARCHAR(255),
+  user_id INTEGER,
   amount INTEGER,
   currency VARCHAR(3),
   description TEXT,
@@ -69,7 +69,10 @@ CREATE TABLE IF NOT EXISTS tbl_domain_payment_details (
   customer_city VARCHAR(255),
   customer_postal_code VARCHAR(10),
   customer_country VARCHAR(2),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  payment_status VARCHAR(255),
+  FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 

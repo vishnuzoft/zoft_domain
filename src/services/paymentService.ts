@@ -2,7 +2,7 @@ import { Request } from 'express';
 import Stripe from 'stripe';
 import { client, environment, release } from '../config';
 import { CartRepository, PaymentRepository } from '../repository';
-import { AuthenticatedRequest } from '../models';
+import { AuthenticatedRequest, PaymentDetails, PaymentIntent } from '../models';
 import { customError } from '../utility';
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 
@@ -91,14 +91,11 @@ class PaymentService {
           
 //         }
 //       }
-static async createPaymentIntent(req: AuthenticatedRequest) {
-    const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
-    const user_id = req.user_id ||'';
-
-    // if (currency !== 'inr' && customerCountry.toLowerCase() === 'in') {
-    //     throw new Error('Non-INR transactions in India should have shipping/billing address outside India.');
-    // }
+static async createPaymentIntent(req: AuthenticatedRequest): Promise<PaymentIntent> {
     try {
+        const user_id = req.user_id || '';
+        const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
+//const valid =req.body
         const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
             amount,
             currency,
@@ -112,51 +109,79 @@ static async createPaymentIntent(req: AuthenticatedRequest) {
                     postal_code: customerPostalCode,
                     country: customerCountry,
                 },
-              },
+            },
             automatic_payment_methods: {
                 enabled: true,
-                allow_redirects: 'always',
             },
         };
-    
-        // const paymentIntent = await stripe.paymentIntents.create({
-        //     amount,
-        //     currency,
-        //     metadata: { user_id },
-        //     payment_method_types: ['card'],
-        // });
+
         const paymentIntent = await stripe.paymentIntents.create(paymentIntentOptions);
-        return { clientSecret: paymentIntent.client_secret };
+
+        return {
+            status: 200,
+            message: "Successfully Retrieved the Client Secret",
+            clientSecret: paymentIntent.client_secret
+        };
     } catch (error) {
-        throw error
-    }
-   
-}
-
-static async confirmPayment(req: AuthenticatedRequest) {
-    const { paymentIntentId, paymentMethodId,return_url } = req.body;
-    const user_id = req.user_id || '';
-console.log(req.body);
-
-    try {
-        const paymentIntent = await stripe.paymentIntents.confirm(paymentIntentId, {
-            payment_method: paymentMethodId,
-            return_url:return_url
-        });
-console.log(paymentIntent,'intent');
-console.log(paymentIntentId,paymentMethodId,return_url)
-
-        if (paymentIntent.status === 'succeeded') {
-            const dbclient = await client();
-            await PaymentRepository.savePayment(dbclient, paymentIntent.id, paymentIntent.amount, paymentIntent.currency, user_id);
-            return { paymentId: paymentIntent.id };
-        } else {
-            throw new Error('Payment failed');
-        }
-    } catch (error) {
-        console.error('Payment confirmation error:', error);
         throw error;
-    }   
+    }
+}
+static async handleWebhookEvent(req: Request): Promise<void> {
+    const dbClient = await client();
+    const sig = req.headers['stripe-signature'] || '';
+    const webhookSecret = environment.STRIPE_WEBHOOK_SECRET || '';
+
+    let event;
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err) {
+        console.error('Webhook signature verification failed.', err);
+        throw err;
+    }
+
+    switch (event.type) {
+        case 'payment_intent.succeeded':
+            const paymentIntent = event.data.object as Stripe.PaymentIntent;
+            const user_id = paymentIntent.metadata.user_id || '';
+
+            const paymentDetails: PaymentDetails = {
+                amount: paymentIntent.amount,
+                currency: paymentIntent.currency,
+                description: paymentIntent.description || '',
+                payment_method_id: paymentIntent.payment_method as string,
+                payment_intent_id: paymentIntent.id,
+                customer_name: paymentIntent.shipping?.name || '',
+                customer_address: paymentIntent.shipping?.address?.line1 || '',
+                customer_city: paymentIntent.shipping?.address?.city || '',
+                customer_postal_code: paymentIntent.shipping?.address?.postal_code || '',
+                customer_country: paymentIntent.shipping?.address?.country || '',
+            };
+
+            try {
+                const dbResult = await PaymentRepository.savePaymentDetails(dbClient, user_id, paymentDetails);
+                console.log('Payment details stored:', dbResult);
+            } catch (err) {
+                console.error('Error saving payment details:', err);
+                throw err;
+            }
+            break;
+
+        case 'payment_intent.payment_failed':
+            const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
+            const failedUserId = failedPaymentIntent.metadata.user_id || '';
+            try {
+                await PaymentRepository.updatePaymentStatus(dbClient, failedUserId, 'failed');
+            } catch (err) {
+                console.error('Error updating payment status:', err);
+                throw err;
+            }
+            break;
+
+        default:
+            console.warn(`Unhandled event type: ${event.type}`);
+    }
+
+    release(dbClient);
 }
 }
 export { PaymentService };

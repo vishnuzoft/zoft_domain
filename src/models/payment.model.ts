@@ -1,7 +1,17 @@
 export interface PaymentDetails {
-    amount: string;
-    userId: string;
-    domain:string;
-    autoRenew:boolean;
-    years:string;
+    amount: number;
+    currency:string;
+    description:string;
+    payment_method_id:string;
+    payment_intent_id:string;
+    customer_name:string;
+    customer_address:string;
+    customer_city:string;
+    customer_postal_code:string;
+    customer_country:string;
+}
+export interface PaymentIntent{
+    status:number;
+    message:string;
+    clientSecret:string|null;
 }
