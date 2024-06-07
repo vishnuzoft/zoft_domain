@@ -1,8 +1,8 @@
-import { client, environment, release } from '../config';
-import { NamesiloAPI, calculateAmount, customError, domainExpirationDate, findStatus, processRegistrationsInBatches } from '../utility';
+import { client, environment, release, transporter } from '../config';
+import { NamesiloAPI, calculateAmount, customError, domainExpirationDate, emailSenderTemplate, findStatus, processRegistrationsInBatches } from '../utility';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, DomainRegister, DomainResponse, GetDomains, PaymentDetails } from '../models';
-import { DomainRepository } from '../repository';
+import { AuthRepository, DomainRepository } from '../repository';
 import { confirmPaymentIntent } from '../utility';
 import Stripe from 'stripe';
 import { PaymentService } from '../services';
@@ -127,10 +127,27 @@ console.log(paymentIntentId,'idfjffdsnmfdsnmfds');
             status,
             payment_id: paymentIntentId
         });
-           
+        console.log("dbResult", dbResult.rows[0]);
+
+        const emailData = {
+            domains: dbResult.rows[0],
+            user_id
+        };
+        const content = "Domain Registration Successful";
+            const userResult = await AuthRepository.findUserById(dbclient, user_id);
+            const user = userResult.rows[0];
+
+            const mailOptions = emailSenderTemplate(
+              user.email,
+              content,
+              "domainRegister.ejs",
+              emailData
+          );
+          await transporter.sendMail(mailOptions);
         //console.log(dbResult,'dbbbbbbbbbb');
         
       }
+      
         return registrationResults;
     } catch (error) {
       
