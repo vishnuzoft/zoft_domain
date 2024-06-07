@@ -6,6 +6,7 @@ import {
   environment,
   release,
   rollback,
+  transporter,
 } from '../config';
 import {
   AuthenticatedRequest,
@@ -34,7 +35,8 @@ import {
   comparePasswords,
   generateToken,
   createResetPasswordToken,
-  sendResetPasswordEmail
+  sendResetPasswordEmail,
+  emailSenderTemplate
 } from '../utility';
 import { sendSms } from '../utility/smsSender';
 
@@ -82,6 +84,15 @@ class AuthService {
 
 
       const result = await AuthRepository.RegisterUser(dbClient, user, token);
+      const emailData = {};
+      const content = "Successfully Registered";
+      const mailOptions = emailSenderTemplate(
+        result.email,
+        content,
+        "registrationEmail.ejs",
+        emailData
+      );
+      await transporter.sendMail(mailOptions);
 
       const currentDatetime = new Date();
       const formattedDatetime = currentDatetime

@@ -4,6 +4,7 @@ import cors from 'cors';
 import * as dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
+import * as path from 'path';
 
 import { environment } from './config';
 import { errorHandler } from './middlewares/errorHandler';
@@ -12,6 +13,7 @@ import {
   compileSchema,
 } from './utility';
 
+export const emailTemplatePath = path.join(__dirname, "views");
 
 dotenv.config();
 const ajv = new Ajv();
