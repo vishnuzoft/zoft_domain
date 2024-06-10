@@ -9,6 +9,6 @@ const router = express.Router();
 // router.post('/create-checkout-session',Authmiddleware, PaymentController.createPayment);
 // router.post('/webhook',PaymentController.handleWebhookEvent);
 router.post('/create-payment-intent', PaymentController.createPaymentIntent);
-router.post('/webhook',express.raw({ type: 'application/json' }),PaymentController.handleWebhookEvent);
+//router.post('/webhook',express.raw({ type: 'application/json' }),PaymentController.handleWebhookEvent);
 
 export { router as PaymentRoute };

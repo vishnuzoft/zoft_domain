@@ -12,6 +12,7 @@ import { V1 } from './routes';
 import {
   compileSchema,
 } from './utility';
+import { PaymentController } from './controller';
 
 export const emailTemplatePath = path.join(__dirname, "views");
 
@@ -25,7 +26,7 @@ const newServer = http.createServer(app);
 const PORT: any =
   process.env.NODE_ENV === "development" ? 3000 : environment.PORT;
 const IP_ADDRESS = environment.IP_ADDRESS;
-app.post('/api/v1/payment/webhook', express.raw({ type: 'application/json' }));
+app.post('/api/v1/payment/webhook', express.raw({ type: 'application/json' }),PaymentController.handleWebhookEvent);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
