@@ -12,5 +12,4 @@ export * from "./domainExpirationDate";
 export * from "./findStatusofDomain";
 export * from "./emailResetPassword";
 export * from "./batchRegistrations";
-export * from './stripe';
 export * from './emailTemplate';
