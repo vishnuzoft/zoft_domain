@@ -1,4 +1,5 @@
 export interface PaymentDetails {
+    user_id:string;
     amount: number;
     currency:string;
     description:string;

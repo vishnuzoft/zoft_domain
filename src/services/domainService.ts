@@ -3,7 +3,6 @@ import { NamesiloAPI, calculateAmount, customError, domainExpirationDate, emailS
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, DomainRegister, DomainResponse, GetDomains, PaymentDetails } from '../models';
 import { AuthRepository, DomainRepository } from '../repository';
-import { confirmPaymentIntent } from '../utility';
 import Stripe from 'stripe';
 import { PaymentService } from '../services';
 

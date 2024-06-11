@@ -22,11 +22,18 @@ AjvFormats(ajv);
 const validator = compileSchema();
 
 const app = express();
+
+
 const newServer = http.createServer(app);
 const PORT: any =
   process.env.NODE_ENV === "development" ? 3000 : environment.PORT;
 const IP_ADDRESS = environment.IP_ADDRESS;
-app.post('/api/v1/payment/webhook', express.raw({ type: 'application/json' }),PaymentController.handleWebhookEvent);
+
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
+  console.log('Webhook received:', req.body);
+  next();
+}, PaymentController.handleWebhookEvent);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

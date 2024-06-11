@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9; /* light gray background */
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff; /* white background */
+            padding: 30px;
+            border-radius: 10px; /* rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* subtle shadow */
+            border: 1px solid #ddd; /* light gray border */
+        }
+        h1 {
+            color: #e74c3c; /* red color */
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+        /* Add some visual interest with a warning icon */
+        .warning-icon {
+            font-size: 24px;
+            color: #e74c3c; /* red color */
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="warning-icon">&#9888;</i> Payment Failed</h1>
+        <p>Dear,</p>
+        <p>We regret to inform you that your payment of <%= data.amount %> <%= data.currency %> has failed.</p>
+        <p>Please try again or contact your bank for more information.</p>
+        <p>If you have any questions or concerns, please don't hesitate to contact us.</p>
+        <p class="footer">Best regards,<br>Your Company Name</p>
+    </div>
+</body>
+</html>

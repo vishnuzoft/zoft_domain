@@ -47,7 +47,7 @@ class AuthRepository {
   ): Promise<QueryResult> {
     try {
       const user = await client.query(
-        "SELECT user_id,email,password_hash,password_salt FROM tbl_user_account WHERE user_id = $1",
+        "SELECT user_id,email FROM tbl_user_account WHERE user_id = $1",
         [user_id]
       );
       return user;
