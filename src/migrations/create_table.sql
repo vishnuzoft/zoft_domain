@@ -65,11 +65,11 @@ CREATE TABLE IF NOT EXISTS tbl_domain_payment_details (
   payment_method_id VARCHAR(255),
   payment_intent_id VARCHAR(255),
   customer_name VARCHAR(255),
-  customer_address VARCHAR(255),
+  customer_address TEXT,
   customer_city VARCHAR(255),
   customer_postal_code VARCHAR(10),
   customer_country VARCHAR(2),
-  payment_status VARCHAR(255),
+  status VARCHAR(20) DEFAULT 'pending',
   FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

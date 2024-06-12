@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import Stripe from 'stripe';
 import { client, environment, release, transporter } from '../config';
-import { AuthRepository, CartRepository, PaymentRepository } from '../repository';
+import { AuthRepository, CartRepository, DomainRepository, PaymentRepository } from '../repository';
 import { AuthenticatedRequest, PaymentDetails, PaymentIntent } from '../models';
 import { customError, emailSenderTemplate } from '../utility';
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
@@ -93,7 +93,7 @@ class PaymentService {
     //       }
     static async createPaymentIntent(req: AuthenticatedRequest): Promise<PaymentIntent> {
         try {
-            const user_id = req.user_id || '';
+            const user_id = '2'//req.user_id || '';
             const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
             //const valid =req.body
             const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
@@ -141,8 +141,8 @@ class PaymentService {
         try {
             event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
             
-            console.log('Event:', event);
-            console.log('Request:', req); 
+            //console.log('Event:', event);
+            //console.log('Request:', req); 
         } catch (err) {
             console.error('Webhook signature verification failed.', err);
             throw err;
@@ -153,9 +153,9 @@ class PaymentService {
             case 'payment_intent.succeeded':
                 const paymentIntent = event.data.object as Stripe.PaymentIntent;
                 const user_id = paymentIntent.metadata.user_id || '';
+//console.log(user_id,'useriiddidid');
 
                 const paymentDetails: PaymentDetails = {
-                    user_id,
                     amount: paymentIntent.amount,
                     currency: paymentIntent.currency,
                     description: paymentIntent.description || '',
@@ -166,18 +166,22 @@ class PaymentService {
                     customer_city: paymentIntent.shipping?.address?.city || '',
                     customer_postal_code: paymentIntent.shipping?.address?.postal_code || '',
                     customer_country: paymentIntent.shipping?.address?.country || '',
+                    status: 'completed'
                 };
+//console.log(paymentDetails.user_id,'userididid');
 
                 try {
                     const dbResult = await PaymentRepository.savePaymentDetails(dbClient, user_id, paymentDetails);
-                    console.log('Payment details stored:', dbResult);
-                    const content = 'Payment Successful'
+                    //const status=await DomainRepository.updatePaymentStatus(dbClient, paymentDetails.description, 'success');
+                    //console.log('Payment details stored:', dbResult);
+console.log(dbResult,"dbdbdb");
 
+                    const content = 'Payment Successful'
                     const emailData = {
                         amount: paymentDetails.amount,
                         currency: paymentDetails.currency
                     };
-                    const user = '1'//paymentDetails.user_id
+                    const user = '2'//paymentDetails.user_id
                     const userResult = await AuthRepository.findUserById(dbClient, user);
                     const userMail = userResult.rows[0];
                     console.log(userMail,'usermail');
@@ -197,10 +201,10 @@ class PaymentService {
                 break;
 
             case 'payment_intent.payment_failed':
-                const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
-                const failedUserId = failedPaymentIntent.metadata.user_id || '';
+                const failedPaymentIntent = event.data.object;
+                const failedPaymentId = failedPaymentIntent.id;
                 try {
-                    await PaymentRepository.updatePaymentStatus(dbClient, failedUserId, 'failed');
+                    await PaymentRepository.updatePaymentStatus(dbClient, failedPaymentId, 'failed');
                 } catch (err) {
                     console.error('Error updating payment status:', err);
                     throw err;
@@ -218,5 +222,18 @@ class PaymentService {
 
         release(dbClient);
     }
+    static async getPaymentHistory(req: AuthenticatedRequest): Promise<PaymentDetails[]> {
+        //console.log('req:', req);
+        try {
+          const user_id =req.user_id || '';
+          //console.log(user_id);
+          
+          const dbClient = await client();
+          const paymentHistory = await PaymentRepository.getPaymentHistory(dbClient, user_id);
+          return paymentHistory;
+        } catch (error) {
+          throw error;
+        }
+      }
 }
 export { PaymentService };

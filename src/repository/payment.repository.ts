@@ -29,7 +29,8 @@ class PaymentRepository {
         try {
             const result = await client.query(
                 `INSERT INTO 
-                tbl_domain_payment_details(amount, 
+                tbl_domain_payment_details(user_id,
+                    amount, 
                     currency, 
                     description, 
                     payment_method_id, 
@@ -38,38 +39,53 @@ class PaymentRepository {
                     customer_address, 
                     customer_city, 
                     customer_postal_code, 
-                    customer_country) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+                    customer_country,
+                    status) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) 
                     RETURNING *`,
-                [paymentDetails.amount,
-                paymentDetails.currency,
-                paymentDetails.description,
-                paymentDetails.payment_method_id,
-                paymentDetails.payment_intent_id,
-                paymentDetails.customer_name,
-                paymentDetails.customer_address,
-                paymentDetails.customer_city,
-                paymentDetails.customer_postal_code,
-                paymentDetails.customer_country,]);
+                [   user_id,
+                    paymentDetails.amount,
+                    paymentDetails.currency,
+                    paymentDetails.description,
+                    paymentDetails.payment_method_id,
+                    paymentDetails.payment_intent_id,
+                    paymentDetails.customer_name,
+                    paymentDetails.customer_address,
+                    paymentDetails.customer_city,
+                    paymentDetails.customer_postal_code,
+                    paymentDetails.customer_country,
+                    paymentDetails.status]);
             return result.rows[0];
 
         } catch (error) {
             throw error;
         }
     }
-    static async updatePaymentStatus(client: PoolClient, userId: string, status: string): Promise<void> {
+    static async updatePaymentStatus(client: PoolClient, paymentId: string, status: string): Promise<void> {
         try {
-            const result = await client.query(
+            await client.query(
                 `
-        UPDATE tbl_domain_payment_details
-        SET payment_status = $1
-        WHERE user_id = $2
-      `,
-                [status, userId]
+                UPDATE tbl_domain_payment_details
+                SET payment_status = $1
+                WHERE payment_intent_id = $2
+                `,
+                [status, paymentId]
             );
         } catch (error) {
             throw error;
         }
-
     }
+    static async getPaymentHistory(client: PoolClient, user_id: string): Promise<PaymentDetails[]> {
+        try {
+            const result = await client.query(
+                `SELECT id, user_id, amount, currency, description, customer_name, customer_address, customer_city, customer_postal_code, customer_country, status, created_at, updated_at 
+                FROM tbl_domain_payment_details 
+                WHERE user_id = $1`,
+                [user_id]
+            );
+          return result.rows;
+        } catch (error) {
+          throw error;
+        }
+      }
 }
 export { PaymentRepository };

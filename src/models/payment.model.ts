@@ -1,5 +1,4 @@
 export interface PaymentDetails {
-    user_id:string;
     amount: number;
     currency:string;
     description:string;
@@ -10,6 +9,7 @@ export interface PaymentDetails {
     customer_city:string;
     customer_postal_code:string;
     customer_country:string;
+    status:string;
 }
 export interface PaymentIntent{
     status:number;
