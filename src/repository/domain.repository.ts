@@ -53,5 +53,15 @@ class DomainRepository {
             throw error;
         }
     }
+    static async updatePaymentStatus(client: PoolClient, domain: string, paymentStatus: string): Promise<void> {
+        try {
+            await client.query(
+                "UPDATE tbl_domain_registrations SET payment_status = $1 WHERE domain = $2",
+                [paymentStatus, domain]
+            );
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 export { DomainRepository }
