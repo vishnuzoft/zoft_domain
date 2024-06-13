@@ -36,20 +36,22 @@ class PaymentRepository {
                     payment_method_id, 
                     payment_intent_id, 
                     customer_name, 
-                    customer_address, 
+                    customer_address1, 
+            customer_address2,  
                     customer_city, 
                     customer_postal_code, 
                     customer_country,
-                    status) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) 
+                    status) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12,$13) 
                     RETURNING *`,
-                [   user_id,
+                [user_id,
                     paymentDetails.amount,
                     paymentDetails.currency,
                     paymentDetails.description,
                     paymentDetails.payment_method_id,
                     paymentDetails.payment_intent_id,
                     paymentDetails.customer_name,
-                    paymentDetails.customer_address,
+                    paymentDetails.customer_address1,
+                    paymentDetails.customer_address2,
                     paymentDetails.customer_city,
                     paymentDetails.customer_postal_code,
                     paymentDetails.customer_country,
@@ -77,15 +79,16 @@ class PaymentRepository {
     static async getPaymentHistory(client: PoolClient, user_id: string): Promise<PaymentDetails[]> {
         try {
             const result = await client.query(
-                `SELECT id, user_id, amount, currency, description, customer_name, customer_address, customer_city, customer_postal_code, customer_country, status, created_at, updated_at 
-                FROM tbl_domain_payment_details 
-                WHERE user_id = $1`,
+                `SELECT id, user_id, amount, currency, description, customer_name, customer_address1, customer_address2, 
+                    customer_city, customer_postal_code, customer_country, status, created_at, updated_at 
+            FROM tbl_domain_payment_details 
+            WHERE user_id = $1`,
                 [user_id]
             );
-          return result.rows;
+            return result.rows;
         } catch (error) {
-          throw error;
+            throw error;
         }
-      }
+    }
 }
 export { PaymentRepository };

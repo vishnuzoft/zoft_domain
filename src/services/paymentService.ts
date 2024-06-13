@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { client, environment, release, transporter } from '../config';
 import { AuthRepository, CartRepository, DomainRepository, PaymentRepository } from '../repository';
 import { AuthenticatedRequest, PaymentDetails, PaymentIntent } from '../models';
-import { customError, emailSenderTemplate } from '../utility';
+import { customError, emailSenderTemplate, validation } from '../utility';
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 
 const stripe = new Stripe(environment.STRIPE_SECRET_KEY || '');
@@ -95,7 +95,7 @@ class PaymentService {
         try {
             const user_id = '2'//req.user_id || '';
             const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
-            //const valid =req.body
+            //const valid =validation('payment',req.body)
             const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
                 amount,
                 currency,
@@ -104,7 +104,8 @@ class PaymentService {
                 shipping: {
                     name: customerName,
                     address: {
-                        line1: customerAddress,
+                        line1: customerAddress.line1,
+                        line2: customerAddress.line2 || '',
                         city: customerCity,
                         postal_code: customerPostalCode,
                         country: customerCountry,
@@ -140,7 +141,7 @@ class PaymentService {
         let event;
         try {
             event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-            
+
             //console.log('Event:', event);
             //console.log('Request:', req); 
         } catch (err) {
@@ -153,7 +154,7 @@ class PaymentService {
             case 'payment_intent.succeeded':
                 const paymentIntent = event.data.object as Stripe.PaymentIntent;
                 const user_id = paymentIntent.metadata.user_id || '';
-//console.log(user_id,'useriiddidid');
+                //console.log(user_id,'useriiddidid');
 
                 const paymentDetails: PaymentDetails = {
                     amount: paymentIntent.amount,
@@ -162,19 +163,20 @@ class PaymentService {
                     payment_method_id: paymentIntent.payment_method as string,
                     payment_intent_id: paymentIntent.id,
                     customer_name: paymentIntent.shipping?.name || '',
-                    customer_address: paymentIntent.shipping?.address?.line1 || '',
+                    customer_address1: paymentIntent.shipping?.address?.line1 || '',
+                    customer_address2: paymentIntent.shipping?.address?.line2 || '',
                     customer_city: paymentIntent.shipping?.address?.city || '',
                     customer_postal_code: paymentIntent.shipping?.address?.postal_code || '',
                     customer_country: paymentIntent.shipping?.address?.country || '',
                     status: 'completed'
                 };
-//console.log(paymentDetails.user_id,'userididid');
+                //console.log(paymentDetails.user_id,'userididid');
 
                 try {
                     const dbResult = await PaymentRepository.savePaymentDetails(dbClient, user_id, paymentDetails);
                     //const status=await DomainRepository.updatePaymentStatus(dbClient, paymentDetails.description, 'success');
                     //console.log('Payment details stored:', dbResult);
-console.log(dbResult,"dbdbdb");
+                    console.log(dbResult, "dbdbdb");
 
                     const content = 'Payment Successful'
                     const emailData = {
@@ -184,9 +186,9 @@ console.log(dbResult,"dbdbdb");
                     const user = '2'//paymentDetails.user_id
                     const userResult = await AuthRepository.findUserById(dbClient, user);
                     const userMail = userResult.rows[0];
-                    console.log(userMail,'usermail');
-                    console.log(emailData,'email');
-                    
+                    console.log(userMail, 'usermail');
+                    console.log(emailData, 'email');
+
                     const mailOptions = emailSenderTemplate(
                         userMail.email,
                         content,
@@ -225,15 +227,15 @@ console.log(dbResult,"dbdbdb");
     static async getPaymentHistory(req: AuthenticatedRequest): Promise<PaymentDetails[]> {
         //console.log('req:', req);
         try {
-          const user_id =req.user_id || '';
-          //console.log(user_id);
-          
-          const dbClient = await client();
-          const paymentHistory = await PaymentRepository.getPaymentHistory(dbClient, user_id);
-          return paymentHistory;
+            const user_id = req.user_id || '';
+            //console.log(user_id);
+
+            const dbClient = await client();
+            const paymentHistory = await PaymentRepository.getPaymentHistory(dbClient, user_id);
+            return paymentHistory;
         } catch (error) {
-          throw error;
+            throw error;
         }
-      }
+    }
 }
 export { PaymentService };
