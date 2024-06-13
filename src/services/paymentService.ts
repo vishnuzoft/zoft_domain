@@ -94,30 +94,41 @@ class PaymentService {
     static async createPaymentIntent(req: AuthenticatedRequest): Promise<PaymentIntent> {
         try {
             const user_id = '2'//req.user_id || '';
-            const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
+            //const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
+            const { amount, currency, description } = req.body;
             //const valid =validation('payment',req.body)
             const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
                 amount,
                 currency,
-                metadata: { user_id },
                 description,
-                shipping: {
-                    name: customerName,
-                    address: {
-                        line1: customerAddress.line1,
-                        line2: customerAddress.line2 || '',
-                        city: customerCity,
-                        postal_code: customerPostalCode,
-                        country: customerCountry,
-                    },
-                },
+                metadata: { user_id },
                 automatic_payment_methods: {
                     enabled: true,
                 },
             };
+            // const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
+            //     amount,
+            //     currency,
+            //     metadata: { user_id },
+            //     description,
+            //     shipping: {
+            //         name: customerName,
+            //         address: {
+            //             line1: customerAddress.line1,
+            //             line2: customerAddress.line2 || '',
+            //             city: customerCity,
+            //             postal_code: customerPostalCode,
+            //             country: customerCountry,
+            //         },
+            //     },
+            //     automatic_payment_methods: {
+            //         enabled: true,
+            //     },
+            // };
 
             const paymentIntent = await stripe.paymentIntents.create(paymentIntentOptions);
             //console.log('intent',paymentIntent);
+            //console.log(paymentIntent,"intent");
 
             return {
                 status: 200,
@@ -155,6 +166,11 @@ class PaymentService {
                 const paymentIntent = event.data.object as Stripe.PaymentIntent;
                 const user_id = paymentIntent.metadata.user_id || '';
                 //console.log(user_id,'useriiddidid');
+                let paymentMethodDetails;
+                if (paymentIntent.payment_method) {
+                    paymentMethodDetails = await stripe.paymentMethods.retrieve(paymentIntent.payment_method as string);
+                }
+                //console.log(paymentMethodDetails);
 
                 const paymentDetails: PaymentDetails = {
                     amount: paymentIntent.amount,
@@ -162,12 +178,12 @@ class PaymentService {
                     description: paymentIntent.description || '',
                     payment_method_id: paymentIntent.payment_method as string,
                     payment_intent_id: paymentIntent.id,
-                    customer_name: paymentIntent.shipping?.name || '',
-                    customer_address1: paymentIntent.shipping?.address?.line1 || '',
-                    customer_address2: paymentIntent.shipping?.address?.line2 || '',
-                    customer_city: paymentIntent.shipping?.address?.city || '',
-                    customer_postal_code: paymentIntent.shipping?.address?.postal_code || '',
-                    customer_country: paymentIntent.shipping?.address?.country || '',
+                    customer_name: paymentMethodDetails?.billing_details?.name || '',
+                    customer_address1: paymentMethodDetails?.billing_details?.address?.line1 || '',
+                    customer_address2: paymentMethodDetails?.billing_details?.address?.line2 || '',
+                    customer_city: paymentMethodDetails?.billing_details?.address?.city || '',
+                    customer_postal_code: paymentMethodDetails?.billing_details?.address?.postal_code || '',
+                    customer_country: paymentMethodDetails?.billing_details?.address?.country || '',
                     status: 'completed'
                 };
                 //console.log(paymentDetails.user_id,'userididid');
@@ -213,9 +229,22 @@ class PaymentService {
                 }
                 break;
             case 'charge.updated':
-                const updatedCharge = event.data.object as Stripe.Charge;
-                const receiptUrl = updatedCharge.receipt_url;
-                console.log('Receipt URL:', receiptUrl);
+                try {
+                    const updatedCharge = event.data.object as Stripe.Charge;
+                    // const user_id = updatedCharge.metadata.user_id || '2'
+                    // const userResult = await AuthRepository.findUserById(dbClient, user_id);
+                    // const userMail = userResult.rows[0].email;
+                    // console.log(userMail, 'usermail');
+
+                    const receiptUrl = updatedCharge.receipt_url;
+                    console.log('Receipt URL:', receiptUrl);
+                    //const user = '2'//paymentDetails.user_id
+
+
+                } catch (error) {
+                    throw error
+                }
+
                 break;
 
             default:
