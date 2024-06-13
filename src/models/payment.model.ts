@@ -5,7 +5,8 @@ export interface PaymentDetails {
     payment_method_id:string;
     payment_intent_id:string;
     customer_name:string;
-    customer_address:string;
+    customer_address1:string;
+    customer_address2:string;
     customer_city:string;
     customer_postal_code:string;
     customer_country:string;

@@ -1,0 +1,47 @@
+{
+    "$id": "payment",
+    "type": "object",
+    "properties": {
+        "amount": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3
+        },
+        "description": {
+            "type": "string",
+            "maxLength": 255
+        },
+        "customerName": {
+            "type": "string",
+            "maxLength": 100
+        },
+        "customerAddress": {
+            "type": "object",
+            "properties": {
+                "line1": { "type": "string", "maxLength": 255 },
+                "line2": { "type": "string", "maxLength": 255 }
+            },
+            "required": ["line1"],
+            "additionalProperties": false
+        },
+        "customerCity": {
+            "type": "string",
+            "maxLength": 100
+        },
+        "customerPostalCode": {
+            "type": "string",
+            "maxLength": 20
+        },
+        "customerCountry": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2
+        }
+    },
+    "required": ["amount", "currency", "description", "customerName", "customerAddress", "customerCity", "customerPostalCode", "customerCountry"],
+    "additionalProperties": false
+}
