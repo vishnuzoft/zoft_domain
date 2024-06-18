@@ -11,7 +11,7 @@ class PaymentService {
 
     static async createPaymentIntent(req: AuthenticatedRequest): Promise<PaymentIntent> {
         try {
-            const user_id = req.user_id || '2';
+            const user_id = req.user_id || '';
             // console.log("Types:", {
             //     amount: typeof req.body.amount,
             //     currency: typeof req.body.currency,
@@ -136,7 +136,7 @@ class PaymentService {
                     };
                     //console.log(amount);
 
-                    const user = '2'//paymentDetails.user_id
+                    const user = user_id
                     const userResult = await AuthRepository.findUserById(dbClient, user);
                     const userMail = userResult.rows[0];
                     console.log(userMail, 'usermail');
@@ -148,7 +148,7 @@ class PaymentService {
                         "paymentSuccess.ejs",
                         emailData
                     );
-                    await transporter.sendMail(mailOptions);
+                    //await transporter.sendMail(mailOptions);
                 } catch (err) {
                     console.error('Error saving payment details:', err);
                     throw err;

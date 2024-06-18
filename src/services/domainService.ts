@@ -142,7 +142,7 @@ console.log(paymentIntentId,'idfjffdsnmfdsnmfds');
               "domainRegister.ejs",
               emailData
           );
-          await transporter.sendMail(mailOptions);
+          //await transporter.sendMail(mailOptions);
         //console.log(dbResult,'dbbbbbbbbbb');
         
       }

@@ -92,7 +92,7 @@ class AuthService {
         "registrationEmail.ejs",
         emailData
       );
-      await transporter.sendMail(mailOptions);
+      //await transporter.sendMail(mailOptions);
 
       const currentDatetime = new Date();
       const formattedDatetime = currentDatetime
