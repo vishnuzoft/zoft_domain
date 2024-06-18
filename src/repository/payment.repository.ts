@@ -80,7 +80,7 @@ class PaymentRepository {
         try {
             const result = await client.query(
                 `SELECT id, user_id, amount, currency, description, customer_name, customer_address1, customer_address2, 
-                    customer_city, customer_postal_code, customer_country, status, created_at, updated_at 
+                    customer_city, customer_postal_code, customer_country, status 
             FROM tbl_domain_payment_details 
             WHERE user_id = $1`,
                 [user_id]

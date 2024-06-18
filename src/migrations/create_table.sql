@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS tbl_domain_cart (
 CREATE TABLE IF NOT EXISTS tbl_domain_payment_details (
   id SERIAL PRIMARY KEY,
   user_id INTEGER,
-  amount INTEGER,
+  amount VARCHAR(255),
   currency VARCHAR(3),
   description TEXT,
   payment_method_id VARCHAR(255),
