@@ -29,12 +29,11 @@ const PORT: any =
   process.env.NODE_ENV === "development" ? 3000 : environment.PORT;
 const IP_ADDRESS = environment.IP_ADDRESS;
 
-app.post('/webhook', express.raw({ type: 'application/json' }),
-  //console.log('Webhook received:', req.body);
-  //next();
- PaymentController.handleWebhookEvent);
+app.post('/webhook', express.raw({ type: 'application/json' }), PaymentController.handleWebhookEvent);
 
 app.use(express.json());
+
+//app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -47,10 +46,9 @@ app.use("/public", express.static("public"));
 app.use("/api", V1);
 
 app.use(errorHandler);
-app.get('/success', (req, res) => {
+app.get('/', (req, res) => {
   res.send('Server running');
 });
 const server = newServer.listen(PORT, IP_ADDRESS, () => {
   console.log(`Server is running on the port http://${IP_ADDRESS}:${PORT}`);
 });
-

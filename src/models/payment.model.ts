@@ -1,5 +1,5 @@
 export interface PaymentDetails {
-    amount: number;
+    amount: string;
     currency:string;
     description:string;
     payment_method_id:string;

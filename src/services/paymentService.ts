@@ -4,101 +4,31 @@ import { client, environment, release, transporter } from '../config';
 import { AuthRepository, CartRepository, DomainRepository, PaymentRepository } from '../repository';
 import { AuthenticatedRequest, PaymentDetails, PaymentIntent } from '../models';
 import { customError, emailSenderTemplate, validation } from '../utility';
-import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 
 const stripe = new Stripe(environment.STRIPE_SECRET_KEY || '');
 
-interface CustomPaymentIntentCreateParams extends Stripe.PaymentIntentCreateParams {
-    return_url?: string;
-}
-
-
 class PaymentService {
-    //     static async createPayment(req: AuthenticatedRequest): Promise<Stripe.Checkout.Session> {
-    //         const dbClient = await client();
-    //         try {
-    //             const user_id = parseInt(req.user_id || '')
-    //             const { orderItemId } = req.body;
-    // console.log(orderItemId);
-    // console.log(user_id);  
 
-
-    //             const orderItem = await CartRepository.getOrderItemById(dbClient, orderItemId);
-    //             if (!orderItem) {
-    //                 throw new customError('Order item not found', 404);
-    //             }
-    //             console.log(orderItem);
-    //             const amount = Math.round(parseFloat(orderItem.price));
-
-    //             const sessionOptions: Stripe.Checkout.SessionCreateParams = {
-    //                 payment_method_types: ['card'],
-    //                 line_items: [{
-    //                     price_data: {
-    //                         currency: 'usd',
-    //                         product_data: {
-    //                             name: orderItem.domain,
-    //                         },
-    //                         unit_amount: amount * 100,
-    //                     },
-    //                     quantity: 1,
-    //                 }],
-    //                 mode: 'payment',
-    //                 success_url: 'http://google.com',
-    //                 cancel_url: 'http://cricbuzz.com',
-    //             };
-    //             console.log(sessionOptions);
-
-    //             const session = await stripe.checkout.sessions.create(sessionOptions);
-
-    //             if (!session.id) {
-    //                 throw new customError('Session ID is null', 400);
-    //             }
-
-    //             const paymentId = await PaymentRepository.createPayment(dbClient, user_id, orderItemId, amount);
-    //             console.log(paymentId);
-
-    //             return session;
-    //         } catch (error) {
-    //             throw error;
-    //         } finally {
-    //             release(dbClient);
-    //         }
-    //     }
-    //     static async handleWebhookEvent(req:any): Promise<void> {
-    //         const dbClient = await client();
-    //         const sig = req.headers[environment.STRIPE_WEBHOOK_SECRET ||''];
-    //         let event;
-    //         const webhookSecret='we_1P9PDzSJUBUBQNAilEcvHFKj'
-    //         try {
-    //           event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret); 
-    //         } catch (err) {
-    //           console.error('Webhook signature verification failed.', err);
-    //           throw new Error('Webhook signature verification failed.');
-    //         }
-
-
-    //         switch (event.type) {
-    //           case 'checkout.session.completed':
-    //             const session = event.data.object;
-    //             const paymentId = parseInt(session.client_reference_id||'')
-    //             await PaymentRepository.updatePaymentStatus(dbClient,paymentId,'success');
-    //             break;
-    //           case 'checkout.session.async_payment_failed':
-    //             const failedSession = event.data.object;
-    //             const failedPaymentId = parseInt(failedSession.client_reference_id||'');
-    //             await PaymentRepository.updatePaymentStatus(dbClient,failedPaymentId, 'failed');
-    //             break;
-
-    //         }
-    //       }
     static async createPaymentIntent(req: AuthenticatedRequest): Promise<PaymentIntent> {
         try {
-            const user_id = '2'//req.user_id || '';
-            //const { amount, currency, description, customerName, customerAddress, customerCity, customerPostalCode, customerCountry } = req.body;
+            const user_id = req.user_id || '2';
+            // console.log("Types:", {
+            //     amount: typeof req.body.amount,
+            //     currency: typeof req.body.currency,
+            //     description: typeof req.body.description
+            // });
+            // if (typeof req.body.amount === 'string') {
+            //     req.body.amount = parseInt(req.body.amount, 10);
+            // }
             const { amount, currency, description } = req.body;
-            //const valid =validation('payment',req.body)
+            console.log(amount, currency, description);
+            console.log(req.body, 'bodydufdsfudsfudsfdsu');
+            const amountInCents = Math.round(parseFloat(amount) * 100);
+            const valid = validation('payment', req.body)
+
+
             const paymentIntentOptions: Stripe.PaymentIntentCreateParams = {
-                amount,
+                amount: amountInCents,
                 currency,
                 description,
                 metadata: { user_id },
@@ -125,9 +55,10 @@ class PaymentService {
             //         enabled: true,
             //     },
             // };
+            
 
             const paymentIntent = await stripe.paymentIntents.create(paymentIntentOptions);
-            //console.log('intent',paymentIntent);
+            console.log('intent', paymentIntent);
             //console.log(paymentIntent,"intent");
 
             return {
@@ -165,15 +96,18 @@ class PaymentService {
             case 'payment_intent.succeeded':
                 const paymentIntent = event.data.object as Stripe.PaymentIntent;
                 const user_id = paymentIntent.metadata.user_id || '';
-                //console.log(user_id,'useriiddidid');
+                console.log(paymentIntent.metadata.user_id, 'useriiddidid');
                 let paymentMethodDetails;
                 if (paymentIntent.payment_method) {
                     paymentMethodDetails = await stripe.paymentMethods.retrieve(paymentIntent.payment_method as string);
                 }
                 //console.log(paymentMethodDetails);
+                //const amount=paymentIntent.amount.toString()
+                console.log(typeof paymentIntent.amount);
 
+                const amountInDollars = (paymentIntent.amount / 100).toFixed(2);
                 const paymentDetails: PaymentDetails = {
-                    amount: paymentIntent.amount,
+                    amount: amountInDollars,
                     currency: paymentIntent.currency,
                     description: paymentIntent.description || '',
                     payment_method_id: paymentIntent.payment_method as string,
@@ -195,10 +129,13 @@ class PaymentService {
                     console.log(dbResult, "dbdbdb");
 
                     const content = 'Payment Successful'
+
                     const emailData = {
                         amount: paymentDetails.amount,
                         currency: paymentDetails.currency
                     };
+                    //console.log(amount);
+
                     const user = '2'//paymentDetails.user_id
                     const userResult = await AuthRepository.findUserById(dbClient, user);
                     const userMail = userResult.rows[0];
@@ -256,11 +193,13 @@ class PaymentService {
     static async getPaymentHistory(req: AuthenticatedRequest): Promise<PaymentDetails[]> {
         //console.log('req:', req);
         try {
+            
             const user_id = req.user_id || '';
             //console.log(user_id);
-
             const dbClient = await client();
             const paymentHistory = await PaymentRepository.getPaymentHistory(dbClient, user_id);
+            console.log(paymentHistory,'history');
+            
             return paymentHistory;
         } catch (error) {
             throw error;
