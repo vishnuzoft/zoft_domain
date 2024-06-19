@@ -29,7 +29,7 @@ const PORT: any =
   process.env.NODE_ENV === "development" ? 3000 : environment.PORT;
 const IP_ADDRESS = environment.IP_ADDRESS;
 
-app.post('/webhook', express.raw({ type: 'application/json' }), PaymentController.handleWebhookEvent);
+app.post('/webhook', express.json({ type: 'application/json' }), PaymentController.handleWebhookEvent);
 
 app.use(express.json());
 
