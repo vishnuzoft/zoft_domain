@@ -29,11 +29,16 @@ const PORT: any =
   process.env.NODE_ENV === "development" ? 3000 : environment.PORT;
 const IP_ADDRESS = environment.IP_ADDRESS;
 
-app.post('/webhook', express.raw({ type: 'application/json' }), PaymentController.handleWebhookEvent);
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
+  // Log raw body and signature
+  console.log('Raw body:', req.body.toString());
+  console.log('Stripe signature:', req.headers['stripe-signature']);
+
+  PaymentController.handleWebhookEvent(req, res, next);
+});
 
 app.use(express.json());
 
-//app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({

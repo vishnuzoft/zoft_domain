@@ -79,10 +79,9 @@ class PaymentService {
         //console.log(webhookSecret,'secret');
         //console.log(sig,'sig');
 
-        const reqBody=req.body.toString('utf8')
         let event;
         try {
-            event = stripe.webhooks.constructEvent(reqBody, sig, webhookSecret);
+            event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
 
             //console.log('Event:', event);
             //console.log('Request:', req); 
