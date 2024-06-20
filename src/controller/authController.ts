@@ -1,5 +1,5 @@
 import { Request,NextFunction,Response } from "express";
-import { AuthenticatedRequest, PasswordReq, ProfileReq, ProfileRequest, loginRequest, registerReq } from "../models";
+import { AuthenticatedRequest, PasswordReq, ProfileReq, ProfileRequest, UpdatePassword, loginRequest, registerReq } from "../models";
 import { AuthService } from "../services";
 
 class AuthController {
@@ -65,6 +65,14 @@ static async forgotPassword(
   } catch (error) {
       next(error);
   } 
+}
+static async resetPassword(req: UpdatePassword, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const response = await AuthService.resetPassword(req);
+    res.json(response);
+  } catch (error) {
+    next(error);
+  }
 }
 };
 export {AuthController}

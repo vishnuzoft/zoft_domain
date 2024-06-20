@@ -15,6 +15,15 @@ class TokenRepository{
           throw error;
         }
       }
+      static async findResetPasswordToken(client: PoolClient, token: string) {
+        try {
+          const result= await client.query("SELECT * FROM tbl_user_account WHERE password_recovery_token = $1 LIMIT 1",
+        [token])
+          return result.rows[0]
+        } catch (error) {
+          throw error
+        }
+      }
 }
 
 export {TokenRepository};

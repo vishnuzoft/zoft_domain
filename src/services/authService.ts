@@ -19,6 +19,9 @@ import {
   ProfileResponse,
   registerReq,
   RegistrationResponse,
+  Response,
+  UpdatePassword,
+  UpdateUser,
   User,
   user,
   userLoginData,
@@ -263,23 +266,72 @@ console.log("sdfsfdsf",userDetails.user_id);
     const dbClient = await client();
     try {
       const email = req.body.email;
-      const user = await AuthRepository.findUserByEmail(dbClient, email);
-      if (!user) {
+      const userResult = await AuthRepository.findUserByEmail(dbClient, email);
+
+      if (userResult.rows.length === 0) {
         throw new customError("User Not Found With Given Email", 404);
       }
 
-      const user_id = user.rows[0].user_id;
+      const user_id = userResult.rows[0].user_id;
       const resetToken = createResetPasswordToken();
       const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
-  
+
       await TokenRepository.createResetPasswordToken(dbClient, user_id, resetToken, expiresAt);
-  
+
       const resetUrl = `${environment.FRONTEND_URL}/reset-password/${resetToken}`;
-      console.log(resetUrl);
-      
-      await sendResetPasswordEmail(user.rows[0].email, resetUrl);
-  
+      const emailData = { resetUrl };
+      const content = "Please click the link below to reset your password.";
+      const mailOptions = emailSenderTemplate(
+        userResult.rows[0].email,
+        content,
+        "resetPasswordEmail.ejs",
+        emailData
+      );
+
+      await transporter.sendMail(mailOptions);
+
       return { message: "Reset password link sent to your email" };
+    } catch (error) {
+      throw error;
+    } finally {
+      release(dbClient);
+    }
+  }
+  static async resetPassword(req: UpdatePassword): Promise<Response> {
+    const token: string = req.params.token;
+    const { password, confirmPassword } = req.body;
+    const dbClient = await client();
+    try {
+      const valid = validation("setPassword", req.body);
+      if (password != confirmPassword) {
+        throw new customError("Passwords do not match", 400);
+      }
+      const password_salt = generateSalt();
+      const hashedPassword: string = hashPassword(password, password_salt);
+      await begin(dbClient);
+      const resetTokenResult: any = await TokenRepository.findResetPasswordToken(dbClient,token);
+      console.log('resettoken result',resetTokenResult)
+      
+      //const resetToken = resetTokenResult.rows[0];
+      //console.log(resetToken,'resettoeknfdhbfjbvguhjuhfjbghfd');
+      
+      if (new Date() > new Date(resetTokenResult.expires_at)) {
+        throw new customError("Reset token has expired", 400);
+      }
+      const user_id = resetTokenResult.user_id;
+      console.log(user_id);
+      
+      const updateUser: UpdateUser = {
+        password_hash: hashedPassword,
+        password_salt: password_salt,
+        user_id: user_id,
+      };
+      await AuthRepository.updateUserPassword(dbClient,updateUser);
+      await commit(dbClient);
+      return {
+        message: "Successfully Reset Your Password ",
+        status: 200,
+      };
     } catch (error) {
       throw error;
     } finally {

@@ -19,3 +19,17 @@ export interface ResetPasswordToken {
   created_at: Date;
   expires_at: Date;
 }
+export interface UpdatePassword {
+  params: {
+    token: string;
+  };
+  body: {
+    password: string;
+    confirmPassword: string;
+  };
+}
+export interface UpdateUser {
+  password_hash: string;
+  password_salt: string;
+  user_id: number;
+}
