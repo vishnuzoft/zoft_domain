@@ -76,15 +76,15 @@ class PaymentService {
         const dbClient = await client();
         const sig = req.headers['stripe-signature'] || '';
         const webhookSecret = environment.STRIPE_WEBHOOK_SECRET || '';
-        //console.log(webhookSecret,'secret');
-        //console.log(sig,'sig');
+        console.log(webhookSecret,'secret');
+        console.log(sig,'sig');
 
         let event;
         try {
             event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
 
-            //console.log('Event:', event);
-            //console.log('Request:', req); 
+            console.log('Event:', event);
+            console.log('Request:', req); 
         } catch (err) {
             console.error('Webhook signature verification failed.', err);
             throw err;
@@ -94,7 +94,7 @@ class PaymentService {
         switch (event.type) {
             case 'payment_intent.succeeded':
                 const paymentIntent = event.data.object as Stripe.PaymentIntent;
-                const user_id = paymentIntent.metadata.user_id || '';
+                const user_id = paymentIntent.metadata.user_id || '2';
                 console.log(paymentIntent.metadata.user_id, 'useriiddidid');
                 let paymentMethodDetails;
                 if (paymentIntent.payment_method) {

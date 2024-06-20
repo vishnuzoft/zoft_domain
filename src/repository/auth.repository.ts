@@ -6,6 +6,8 @@ import {
   ProfileBody,
   ProfileResponse,
   registerBody,
+  UpdatePassword,
+  UpdateUser,
   User
 } from '../models';
 
@@ -93,6 +95,14 @@ class AuthRepository {
     } catch (error) {
         throw error;
     }
+}
+static async updateUserPassword(client: PoolClient, dataLatest:UpdateUser):Promise<QueryResult> {
+  try {
+    const result = await client.query("UPDATE tbl_user_account SET password_hash = $1,password_salt = $2 WHERE user_id = $3 RETURNING user_id,email",[dataLatest.password_hash,dataLatest.password_salt,dataLatest.user_id])
+    return result;
+  } catch (error) {
+    throw error
+  }
 }
 }
 export { AuthRepository };
