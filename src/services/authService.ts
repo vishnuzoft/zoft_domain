@@ -38,7 +38,6 @@ import {
   comparePasswords,
   generateToken,
   createResetPasswordToken,
-  sendResetPasswordEmail,
   emailSenderTemplate
 } from '../utility';
 import { sendSms } from '../utility/smsSender';
@@ -276,7 +275,8 @@ console.log("sdfsfdsf",userDetails.user_id);
       const resetToken = createResetPasswordToken();
       const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
-      await TokenRepository.createResetPasswordToken(dbClient, user_id, resetToken, expiresAt);
+      const token_data=await TokenRepository.createResetPasswordToken(dbClient, user_id, resetToken, expiresAt);
+console.log(token_data,'token data');
 
       const resetUrl = `${environment.FRONTEND_URL}/reset-password/${resetToken}`;
       const emailData = { resetUrl };
@@ -290,7 +290,9 @@ console.log("sdfsfdsf",userDetails.user_id);
 
       await transporter.sendMail(mailOptions);
 
-      return { message: "Reset password link sent to your email" };
+      return { message: "Reset password link sent to your email",
+        token:resetToken
+       };
     } catch (error) {
       throw error;
     } finally {
@@ -311,11 +313,8 @@ console.log("sdfsfdsf",userDetails.user_id);
       await begin(dbClient);
       const resetTokenResult: any = await TokenRepository.findResetPasswordToken(dbClient,token);
       console.log('resettoken result',resetTokenResult)
-      
-      //const resetToken = resetTokenResult.rows[0];
-      //console.log(resetToken,'resettoeknfdhbfjbvguhjuhfjbghfd');
-      
-      if (new Date() > new Date(resetTokenResult.expires_at)) {
+//check reuse token 
+      if (new Date() > new Date(resetTokenResult.recovery_token_time)) {
         throw new customError("Reset token has expired", 400);
       }
       const user_id = resetTokenResult.user_id;
@@ -327,6 +326,7 @@ console.log("sdfsfdsf",userDetails.user_id);
         user_id: user_id,
       };
       await AuthRepository.updateUserPassword(dbClient,updateUser);
+      await TokenRepository.invalidateResetPasswordToken(dbClient, user_id);
       await commit(dbClient);
       return {
         message: "Successfully Reset Your Password ",
