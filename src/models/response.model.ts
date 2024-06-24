@@ -3,3 +3,8 @@ export interface Response {
   status: number;
   data?: any;
 }
+export interface PasswordRes{
+  message: string;
+  status: number;
+  token?: string;
+}

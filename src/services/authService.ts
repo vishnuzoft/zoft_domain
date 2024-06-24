@@ -13,6 +13,7 @@ import {
   loginRequest,
   loginResponse,
   PasswordReq,
+  PasswordRes,
   ProfileBody,
   ProfileReq,
   ProfileRequest,
@@ -49,7 +50,7 @@ class AuthService {
     const dbClient = await client();
     try {
       const { email, country_code, mobile, password, confirm_password } = req.body;
-      
+
       console.log('Received data:', req.body);
 
       // const mobileInt = parseInt(mobile, 10);
@@ -145,7 +146,7 @@ class AuthService {
         userData.user_id
       );
       const userDetails: userLoginData = userDetailsResult.rows[0];
-console.log("sdfsfdsf",userDetails.user_id);
+      console.log("sdfsfdsf", userDetails.user_id);
 
       if (
         !comparePasswords(
@@ -162,7 +163,7 @@ console.log("sdfsfdsf",userDetails.user_id);
         token_secret,
         { expiresIn: "24h" }
       );
-//console.log(accessToken);
+      //console.log(accessToken);
 
       return {
         message: "Successfully logged in",
@@ -178,7 +179,7 @@ console.log("sdfsfdsf",userDetails.user_id);
     }
   }
   static async setUserProfile(req: AuthenticatedRequest): Promise<ProfileResponse> {
-    
+
     const dbClient = await client();
     try {
       const { first_name,
@@ -194,10 +195,10 @@ console.log("sdfsfdsf",userDetails.user_id);
         country_code,
         mobile } = req.body;
 
-        const user_id: string = req.user_id as string;
+      const user_id: string = req.user_id as string;
       const valid = validation("profile", req.body);
-      console.log("dsdsadsads",user_id);
-      
+      console.log("dsdsadsads", user_id);
+
       await begin(dbClient);
 
       const profile: ProfileBody = {
@@ -216,13 +217,13 @@ console.log("sdfsfdsf",userDetails.user_id);
       };
       console.log(profile);
 
-      const result = await AuthRepository.setUserProfile(dbClient,user_id,profile);
+      const result = await AuthRepository.setUserProfile(dbClient, user_id, profile);
 
       await commit(dbClient);
 
       return {
         message: "Profile Created successfully!",
-        user_id:user_id,
+        user_id: user_id,
         profile_id: result.profile_id,
         first_name: result.first_name,
         last_name: result.last_name,
@@ -261,7 +262,7 @@ console.log("sdfsfdsf",userDetails.user_id);
       release(dbClient);
     }
   }
-  static async forgotPassword(req: PasswordReq): Promise<any> {
+  static async forgotPassword(req: PasswordReq): Promise<PasswordRes> {
     const dbClient = await client();
     try {
       const email = req.body.email;
@@ -275,8 +276,8 @@ console.log("sdfsfdsf",userDetails.user_id);
       const resetToken = createResetPasswordToken();
       const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
-      const token_data=await TokenRepository.createResetPasswordToken(dbClient, user_id, resetToken, expiresAt);
-console.log(token_data,'token data');
+      const token_data = await TokenRepository.createResetPasswordToken(dbClient, user_id, resetToken, expiresAt);
+      console.log(token_data, 'token data');
 
       const resetUrl = `${environment.FRONTEND_URL}/reset-password/${resetToken}`;
       const emailData = { resetUrl };
@@ -290,9 +291,11 @@ console.log(token_data,'token data');
 
       await transporter.sendMail(mailOptions);
 
-      return { message: "Reset password link sent to your email",
-        token:resetToken
-       };
+      return {
+        message: "Reset password link sent to your email",
+        status: 200,
+        token: resetToken,
+      };
     } catch (error) {
       throw error;
     } finally {
@@ -311,21 +314,21 @@ console.log(token_data,'token data');
       const password_salt = generateSalt();
       const hashedPassword: string = hashPassword(password, password_salt);
       await begin(dbClient);
-      const resetTokenResult: any = await TokenRepository.findResetPasswordToken(dbClient,token);
-      console.log('resettoken result',resetTokenResult)
-//check reuse token 
+      const resetTokenResult: any = await TokenRepository.findResetPasswordToken(dbClient, token);
+      console.log('resettoken result', resetTokenResult)
+      //check reuse token 
       if (new Date() > new Date(resetTokenResult.recovery_token_time)) {
         throw new customError("Reset token has expired", 400);
       }
       const user_id = resetTokenResult.user_id;
       console.log(user_id);
-      
+
       const updateUser: UpdateUser = {
         password_hash: hashedPassword,
         password_salt: password_salt,
         user_id: user_id,
       };
-      await AuthRepository.updateUserPassword(dbClient,updateUser);
+      await AuthRepository.updateUserPassword(dbClient, updateUser);
       await TokenRepository.invalidateResetPasswordToken(dbClient, user_id);
       await commit(dbClient);
       return {
