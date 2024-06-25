@@ -11,7 +11,7 @@ class PaymentService {
 
     static async createPaymentIntent(req: AuthenticatedRequest): Promise<PaymentIntent> {
         try {
-            const user_id = req.user_id || '';
+            const user_id = req.user_id || '10';
             // console.log("Types:", {
             //     amount: typeof req.body.amount,
             //     currency: typeof req.body.currency,
@@ -94,7 +94,7 @@ class PaymentService {
         switch (event.type) {
             case 'payment_intent.succeeded':
                 const paymentIntent = event.data.object as Stripe.PaymentIntent;
-                const user_id = paymentIntent.metadata.user_id || '2';
+                const user_id = paymentIntent.metadata.user_id || '';
                 console.log(paymentIntent.metadata.user_id, 'useriiddidid');
                 let paymentMethodDetails;
                 if (paymentIntent.payment_method) {
@@ -147,7 +147,7 @@ class PaymentService {
                         "paymentSuccess.ejs",
                         emailData
                     );
-                    //await transporter.sendMail(mailOptions);
+                    await transporter.sendMail(mailOptions);
                 } catch (err) {
                     console.error('Error saving payment details:', err);
                     throw err;

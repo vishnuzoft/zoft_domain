@@ -95,7 +95,7 @@ class AuthService {
         "registrationEmail.ejs",
         emailData
       );
-      //await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
 
       const currentDatetime = new Date();
       const formattedDatetime = currentDatetime
@@ -304,6 +304,8 @@ class AuthService {
   }
   static async resetPassword(req: UpdatePassword): Promise<Response> {
     const token: string = req.params.token;
+    console.log('params token',req.params.token);
+    
     const { password, confirmPassword } = req.body;
     const dbClient = await client();
     try {
@@ -315,6 +317,8 @@ class AuthService {
       const hashedPassword: string = hashPassword(password, password_salt);
       await begin(dbClient);
       const resetTokenResult: any = await TokenRepository.findResetPasswordToken(dbClient, token);
+      console.log(token,'token');
+      
       console.log('resettoken result', resetTokenResult)
       //check reuse token 
       if (new Date() > new Date(resetTokenResult.recovery_token_time)) {
@@ -331,6 +335,19 @@ class AuthService {
       await AuthRepository.updateUserPassword(dbClient, updateUser);
       await TokenRepository.invalidateResetPasswordToken(dbClient, user_id);
       await commit(dbClient);
+    const userEmail = resetTokenResult.email
+
+    const emailData = {};
+    const content = "Your password has been successfully updated.";
+    const mailOptions = emailSenderTemplate(
+      userEmail,
+      content,
+      "passwordUpdate.ejs",
+      emailData
+    );
+
+    await transporter.sendMail(mailOptions);
+
       return {
         message: "Successfully Reset Your Password ",
         status: 200,
