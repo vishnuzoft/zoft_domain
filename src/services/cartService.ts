@@ -35,11 +35,11 @@ class CartService {
         }
     }
 
-    static async getCartItems(req:AuthenticatedRequest): Promise<GetCartItemsResponse> {
+    static async getCartItems(req: AuthenticatedRequest): Promise<GetCartItemsResponse> {
         const dbClient = await client();
         try {
-            const user_id=req.user_id || '';
-            const cartItems = await CartRepository.getCartItems(dbClient,user_id);
+            const user_id = req.user_id || '';
+            const cartItems = await CartRepository.getCartItems(dbClient, user_id);
             return {
                 status: 200,
                 message: "Cart Items Retrieved Successfully",
@@ -51,41 +51,41 @@ class CartService {
             release(dbClient);
         }
     }
-    static async getCartItemsById(req:AuthenticatedRequest):Promise<CartItems>{
-        const dbClient=await client();
-        try{
-            const user_id=req.user_id||''
-            const cartId=parseInt(req.params.id)
-            const cartitem=await CartRepository.getCartItemById(dbClient,cartId,user_id);
+    static async getCartItemsById(req: AuthenticatedRequest): Promise<CartItems> {
+        const dbClient = await client();
+        try {
+            const user_id = req.user_id || ''
+            const cartId = parseInt(req.params.id)
+            const cartitem = await CartRepository.getCartItemById(dbClient, cartId, user_id);
             if (!cartitem) {
                 throw new customError("Cart not found", 404);
-              }
-              return {
+            }
+            return {
                 status: 200,
                 message: "Cart Item Retrieved Successfully",
-                cart_id:cartitem.cart_id,
-                domain:cartitem.domain,
-                price:cartitem.price,
-                duration:cartitem.duration
-              }
-            } catch (error) {
-              throw error;
-            } finally {
-              release(dbClient);
+                cart_id: cartitem.cart_id,
+                domain: cartitem.domain,
+                price: cartitem.price,
+                duration: cartitem.duration
             }
-          }
+        } catch (error) {
+            throw error;
+        } finally {
+            release(dbClient);
+        }
+    }
     static async deleteCartItem(req: AuthenticatedRequest): Promise<GetCartItemByIdResponse> {
         const dbClient = await client();
         try {
             const user_id = req.user_id || ''
             const cartId = parseInt(req.params.id);
-            const cartItem: CartItem = await CartRepository.getCartItemById(dbClient, cartId,user_id);
+            const cartItem: CartItem = await CartRepository.getCartItemById(dbClient, cartId, user_id);
             if (!cartItem) {
                 throw new customError("Cart item not found", 404);
             }
 
-            const response: CartResponse = await CartRepository.deleteCartItem(dbClient, cartId,user_id);
-            
+            const response: CartResponse = await CartRepository.deleteCartItem(dbClient, cartId, user_id);
+
             return {
                 status: 200,
                 message: "Successfully Deleted From Cart",
@@ -109,7 +109,7 @@ class CartService {
                 price,
                 duration
             } = req.body
-//console.log(req.body);
+            //console.log(req.body);
 
             const createdOrder: OrderItem = {
                 domain,
@@ -118,8 +118,8 @@ class CartService {
                 order_item_id: '0'
             }
             const response = await CartRepository.createOrderItem(dbClient, createdOrder, user_id);
-console.log('useridd',user_id);
-console.log('order',response.order_item_id);
+            console.log('useridd', user_id);
+            console.log('order', response.order_item_id);
 
             return {
                 status: 200,
