@@ -1,4 +1,4 @@
-import { client, environment, release, transporter } from '../config';
+import { begin, client, commit, environment, release, rollback, transporter } from '../config';
 import { NamesiloAPI, calculateAmount, customError, domainExpirationDate, emailSenderTemplate, findStatus, processRegistrationsInBatches } from '../utility';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, DomainRegister, DomainResponse, GetDomains, PaymentDetails } from '../models';
@@ -97,7 +97,7 @@ class DomainService {
   static async registerBulkDomains(req: AuthenticatedRequest): Promise<DomainResponse[]> {
     const dbclient = await client();
     const user_id = req.user_id || ''
-    const { registrations, paymentIntentId } = req.body;
+    const { registrations } = req.body;
     try {
       //const paymentId = await PaymentService.confirmPayment(req);
       //console.log(paymentId);
@@ -106,10 +106,8 @@ class DomainService {
       // const registrations: DomainRegister[] = req.body.registrations;
       // console.log(req.body.registrations,"req.body.registrations");
       const registrationsWithPaymentId = registrations.map((registration: DomainRegister) => ({
-        ...registration,
-        payment_id: paymentIntentId
+        ...registration
       }));
-      console.log(paymentIntentId, 'idfjffdsnmfdsnmfds');
 
       const registrationResults = await processRegistrationsInBatches(registrationsWithPaymentId);
       console.log(registrationResults, "results");
@@ -119,12 +117,11 @@ class DomainService {
         const status = findStatus(new Date(), expirationDate);
 
         console.log(registrations, "registration");
-
+        await begin(dbclient);
         const dbResult = await DomainRepository.registerDomain(dbclient, user_id, {
           ...registration,
           expirationDate,
           status,
-          payment_id: paymentIntentId
         });
         console.log("dbResult", dbResult.rows[0]);
 
@@ -142,14 +139,14 @@ class DomainService {
           "domainRegister.ejs",
           emailData
         );
-        //await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
         //console.log(dbResult,'dbbbbbbbbbb');
 
       }
-
+      await commit(dbclient);
       return registrationResults;
     } catch (error) {
-
+      await rollback(dbclient);
       throw error;
     }
   }
@@ -160,7 +157,7 @@ class DomainService {
     try {
       const domainId = req.query.domainId as string;
       const years = parseInt(req.query.years as string);
-
+      await begin(dbClient);
       const existingDomain = await DomainRepository.getDomainById(dbClient, domainId);
       if (!existingDomain) {
         throw new customError("Domain not found", 404);
@@ -172,9 +169,10 @@ class DomainService {
       if (renewalResult.namesilo.reply[0].code[0] === '300') {
         const result = await DomainRepository.renewDomain(dbClient, domain, years);
       }
-
+      await commit(dbClient);
       return renewalResult;
     } catch (error) {
+      await rollback(dbClient);
       throw error;
     } finally {
       release(dbClient)
@@ -184,6 +182,7 @@ class DomainService {
   static async getAllDomains(req: Request): Promise<GetDomains> {
     const dbClient = await client()
     try {
+      await begin(dbClient);
       const domains = await DomainRepository.getAllDomains(dbClient);
       return {
         status: 200,
@@ -191,6 +190,7 @@ class DomainService {
         data: domains
       };
     } catch (error) {
+      await rollback(dbClient);
       throw error
     } finally {
       release(dbClient)
@@ -201,12 +201,15 @@ class DomainService {
     const dbClient = await client();
     try {
       const domainId = req.params.id;
+      await begin(dbClient);
       const domain = await DomainRepository.getDomainById(dbClient, domainId);
       if (!domain) {
         throw new customError("Domain not found", 404);
       }
+      await commit(dbClient);
       return domain;
     } catch (error) {
+      await rollback(dbClient);
       throw error;
     } finally {
       release(dbClient);

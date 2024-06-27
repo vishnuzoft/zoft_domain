@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS tbl_user_account(
     user_id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     country_code VARCHAR(5) NOT NULL,
     mobile VARCHAR(15) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -32,15 +32,17 @@ CREATE TABLE IF NOT EXISTS tbl_user_profile(
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
 );
+--CREATE TYPE domain_status AS ENUM ('active', 'expired', 'pending');
+
 CREATE TABLE IF NOT EXISTS tbl_domain_registrations (
   id SERIAL PRIMARY KEY,
   user_id INTEGER,
   domain VARCHAR(255) NOT NULL UNIQUE,
   years INTEGER NOT NULL,
-  payment_id VARCHAR(255),
   auto_renew BOOLEAN,
   expiration_date TIMESTAMP,
-  status VARCHAR(10),
+  status domain_status,
+  payment_status VARCHAR(20) DEFAULT 'unpaid',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
@@ -56,7 +58,7 @@ CREATE TABLE IF NOT EXISTS tbl_domain_cart (
   FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS tbl_domain_payment_details (
+CREATE TABLE IF NOT EXISTS tbl_payment_details (
   id SERIAL PRIMARY KEY,
   user_id INTEGER,
   amount VARCHAR(255),
@@ -70,7 +72,6 @@ CREATE TABLE IF NOT EXISTS tbl_domain_payment_details (
   customer_city VARCHAR(255),
   customer_postal_code VARCHAR(10),
   customer_country VARCHAR(2),
-  status VARCHAR(20) DEFAULT 'pending',
   FOREIGN KEY (user_id) REFERENCES tbl_user_account(user_id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

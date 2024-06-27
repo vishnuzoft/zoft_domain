@@ -132,7 +132,9 @@ class AuthService {
     };
 
     try {
+      
       const valid = validation("login", req.body);
+      await begin(dbClient);
       const userResult: any = await AuthRepository.findUserByEmail(
         dbClient,
         payload.email
@@ -164,7 +166,7 @@ class AuthService {
         { expiresIn: "24h" }
       );
       //console.log(accessToken);
-
+      await commit(dbClient);
       return {
         message: "Successfully logged in",
         status: 200,
@@ -173,6 +175,7 @@ class AuthService {
         token: accessToken,
       };
     } catch (error) {
+      await rollback(dbClient);
       throw error;
     } finally {
       release(dbClient);
@@ -199,7 +202,7 @@ class AuthService {
       const valid = validation("profile", req.body);
       console.log("dsdsadsads", user_id);
 
-      await begin(dbClient);
+      
 
       const profile: ProfileBody = {
         first_name,
@@ -216,7 +219,7 @@ class AuthService {
         mobile,
       };
       console.log(profile);
-
+      await begin(dbClient);
       const result = await AuthRepository.setUserProfile(dbClient, user_id, profile);
 
       await commit(dbClient);
@@ -248,15 +251,19 @@ class AuthService {
   static async getUserProfileById(req: ProfileReq): Promise<ProfileResponse> {
     const dbClient = await client();
     try {
+      
       const profileId = req.params.profile_id as string;
       console.log(profileId);
+      await begin(dbClient);
       const userProfileResult = await AuthRepository.findUserProfileById(dbClient, profileId);
       const userProfile = userProfileResult.rows[0];
       if (!userProfile) {
         throw new customError("User profile not found", 404);
       }
+      await commit(dbClient);
       return userProfile;
     } catch (error) {
+      await rollback(dbClient);
       throw error;
     } finally {
       release(dbClient);
@@ -265,7 +272,9 @@ class AuthService {
   static async forgotPassword(req: PasswordReq): Promise<PasswordRes> {
     const dbClient = await client();
     try {
+      
       const email = req.body.email;
+      await begin(dbClient);
       const userResult = await AuthRepository.findUserByEmail(dbClient, email);
 
       if (userResult.rows.length === 0) {
@@ -290,13 +299,14 @@ class AuthService {
       );
 
       await transporter.sendMail(mailOptions);
-
+      await commit(dbClient);
       return {
         message: "Reset password link sent to your email",
         status: 200,
         token: resetToken,
       };
     } catch (error) {
+      await rollback(dbClient);
       throw error;
     } finally {
       release(dbClient);
@@ -353,6 +363,7 @@ class AuthService {
         status: 200,
       };
     } catch (error) {
+      await rollback(dbClient);
       throw error;
     } finally {
       release(dbClient);

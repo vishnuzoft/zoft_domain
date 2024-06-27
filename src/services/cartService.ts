@@ -1,4 +1,4 @@
-import { client, release } from '../config';
+import { begin, client, commit, release, rollback } from '../config';
 import { AuthenticatedRequest, CartItem, CartItems, CartResponse, GetCartItemByIdResponse, GetCartItemsResponse, OrderItem, OrderResponse } from '../models';
 import { CartRepository, DomainRepository } from '../repository';
 import { Request } from 'express';
@@ -15,10 +15,10 @@ class CartService {
             const cartItem: CartItem = { domain, duration, price };
 
             console.log(valid);
-
+            await begin(dbClient);
             const insertedCartItem: CartResponse = await CartRepository.addToCart(dbClient, cartItem, user_id);
             console.log(user_id);
-
+            await commit(dbClient)
             return {
                 status: 201,
                 message: "Succesfully Added to Cart",
@@ -29,6 +29,7 @@ class CartService {
                 user_id: insertedCartItem.user_id
             };
         } catch (error) {
+            await rollback(dbClient);
             throw error;
         } finally {
             release(dbClient);
@@ -39,13 +40,16 @@ class CartService {
         const dbClient = await client();
         try {
             const user_id = req.user_id || '';
+            await begin(dbClient);
             const cartItems = await CartRepository.getCartItems(dbClient, user_id);
+            await commit(dbClient);
             return {
                 status: 200,
                 message: "Cart Items Retrieved Successfully",
                 cartItems: cartItems
             };
         } catch (error) {
+            await rollback(dbClient);
             throw error;
         } finally {
             release(dbClient);
@@ -54,12 +58,14 @@ class CartService {
     static async getCartItemsById(req: AuthenticatedRequest): Promise<CartItems> {
         const dbClient = await client();
         try {
-            const user_id = req.user_id || ''
-            const cartId = parseInt(req.params.id)
+            const user_id = req.user_id || '';
+            const cartId = parseInt(req.params.id);
+            await begin(dbClient);
             const cartitem = await CartRepository.getCartItemById(dbClient, cartId, user_id);
             if (!cartitem) {
                 throw new customError("Cart not found", 404);
             }
+            await commit(dbClient);
             return {
                 status: 200,
                 message: "Cart Item Retrieved Successfully",
@@ -69,6 +75,7 @@ class CartService {
                 duration: cartitem.duration
             }
         } catch (error) {
+            await rollback(dbClient)
             throw error;
         } finally {
             release(dbClient);
@@ -79,13 +86,14 @@ class CartService {
         try {
             const user_id = req.user_id || ''
             const cartId = parseInt(req.params.id);
+            await begin(dbClient);
             const cartItem: CartItem = await CartRepository.getCartItemById(dbClient, cartId, user_id);
             if (!cartItem) {
                 throw new customError("Cart item not found", 404);
             }
 
             const response: CartResponse = await CartRepository.deleteCartItem(dbClient, cartId, user_id);
-
+            await commit(dbClient);
             return {
                 status: 200,
                 message: "Successfully Deleted From Cart",
@@ -95,42 +103,7 @@ class CartService {
                 duration: response.duration,
             }
         } catch (error) {
-            throw error;
-        } finally {
-            release(dbClient);
-        }
-    }
-    static async createOrderItem(req: AuthenticatedRequest): Promise<OrderResponse> {
-        const dbClient = await client();
-        try {
-            const user_id = req.user_id || '';
-            const {
-                domain,
-                price,
-                duration
-            } = req.body
-            //console.log(req.body);
-
-            const createdOrder: OrderItem = {
-                domain,
-                price,
-                duration,
-                order_item_id: '0'
-            }
-            const response = await CartRepository.createOrderItem(dbClient, createdOrder, user_id);
-            console.log('useridd', user_id);
-            console.log('order', response.order_item_id);
-
-            return {
-                status: 200,
-                message: "Successfully Created OrderItem",
-                order_item_id: response.order_item_id,
-                user_id: response.user_id,
-                domain: response.domain,
-                price: response.price,
-                duration: response.duration,
-            }
-        } catch (error) {
+            await rollback(dbClient);
             throw error;
         } finally {
             release(dbClient);

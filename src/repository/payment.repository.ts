@@ -29,7 +29,7 @@ class PaymentRepository {
         try {
             const result = await client.query(
                 `INSERT INTO 
-                tbl_domain_payment_details(user_id,
+                tbl_payment_details(user_id,
                     amount, 
                     currency, 
                     description, 
@@ -40,8 +40,7 @@ class PaymentRepository {
             customer_address2,  
                     customer_city, 
                     customer_postal_code, 
-                    customer_country,
-                    status) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12,$13) 
+                    customer_country) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,$11,$12) 
                     RETURNING *`,
                 [user_id,
                     paymentDetails.amount,
@@ -54,24 +53,9 @@ class PaymentRepository {
                     paymentDetails.customer_address2,
                     paymentDetails.customer_city,
                     paymentDetails.customer_postal_code,
-                    paymentDetails.customer_country,
-                    paymentDetails.status]);
+                    paymentDetails.customer_country]);
             return result.rows[0];
 
-        } catch (error) {
-            throw error;
-        }
-    }
-    static async updatePaymentStatus(client: PoolClient, paymentId: string, status: string): Promise<void> {
-        try {
-            await client.query(
-                `
-                UPDATE tbl_domain_payment_details
-                SET payment_status = $1
-                WHERE payment_intent_id = $2
-                `,
-                [status, paymentId]
-            );
         } catch (error) {
             throw error;
         }
@@ -81,7 +65,7 @@ class PaymentRepository {
             const result = await client.query(
                 `SELECT id, user_id, amount, currency, description, customer_name, customer_address1, customer_address2, 
                     customer_city, customer_postal_code, customer_country, status 
-            FROM tbl_domain_payment_details 
+            FROM tbl_payment_details 
             WHERE user_id = $1`,
                 [user_id]
             );
