@@ -11,8 +11,8 @@ class DomainRepository {
             //sugg:make table for date only if need.
             const status = register.status
             const result = await client.query(
-                "INSERT INTO tbl_domain_registrations (domain, years, payment_id, auto_renew, user_id, expiration_date,status) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING *",
-                [register.domain, register.years, register.payment_id, register.auto_renew, user_id, expirationDate,status]
+                "INSERT INTO tbl_domain_registrations (domain, years, auto_renew, user_id, expiration_date,status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+                [register.domain, register.years, register.auto_renew, user_id, expirationDate,status]
               );
 
             console.log(result);

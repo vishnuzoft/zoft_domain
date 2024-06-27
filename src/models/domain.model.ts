@@ -3,7 +3,6 @@ export interface DomainRegister {
   status?:string;
   domain: string;
   years: string;
-  payment_id?: string;
   auto_renew: boolean;
 }
 export interface DomainResponse {
@@ -13,7 +12,6 @@ export interface DomainResponse {
   message: string,
   domain: string;
   years: string;
-  paymentId?: string;
   auto_renew: boolean;
   
 }

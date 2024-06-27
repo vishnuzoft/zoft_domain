@@ -31,8 +31,8 @@ const IP_ADDRESS = environment.IP_ADDRESS;
 
 app.post('/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
   // Log raw body and signature
-  console.log('Raw body:', req.body.toString());
-  console.log('Stripe signature:', req.headers['stripe-signature']);
+  //console.log('Raw body:', req.body.toString());
+  //console.log('Stripe signature:', req.headers['stripe-signature']);
 
   PaymentController.handleWebhookEvent(req, res, next);
 });

@@ -17,8 +17,7 @@ class NamesiloAPI {
                     key: environment.API_KEY,
                     domain: registerData.domain,
                     years: registerData.years,
-                    auto_renew: registerData.auto_renew ? 1 : 0,
-                    payment_id: registerData.payment_id
+                    auto_renew: registerData.auto_renew ? 1 : 0
                 }
             });
             

@@ -13,5 +13,5 @@ router.post('/register-bulk-domains',Authmiddleware,DomainController.registerBul
 router.patch('/renew-domain', DomainController.renewDomain);
 router.get('/all-domains', Authmiddleware, DomainController.getAllDomains);
 router.get('/check-transfer-availability', DomainController.checkTransferAvailability);
-router.get('/:id', DomainController.getDomainById);
+router.get('/:id',Authmiddleware, DomainController.getDomainById);
 export { router as DomainRoute };

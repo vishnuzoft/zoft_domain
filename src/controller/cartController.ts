@@ -36,14 +36,6 @@ class CartController {
             next(error);
         }
     }
-    static async createOrderItem(req:Request,res:Response,next:NextFunction):Promise<void>{
-        try {
-            const response=await CartService.createOrderItem(req);
-            res.json(response);
-        } catch (error) {
-            next(error)
-        }
-    }
 }
 
 export { CartController };
