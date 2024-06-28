@@ -32,7 +32,9 @@ CREATE TABLE IF NOT EXISTS tbl_user_profile(
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
 );
---CREATE TYPE domain_status AS ENUM ('active', 'expired', 'pending');
+
+DROP TYPE IF EXISTS domain_status CASCADE;
+CREATE TYPE domain_status AS ENUM ('active', 'expired', 'pending');
 
 CREATE TABLE IF NOT EXISTS tbl_domain_registrations (
   id SERIAL PRIMARY KEY,

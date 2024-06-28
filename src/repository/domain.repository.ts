@@ -35,7 +35,7 @@ class DomainRepository {
     
     static async getAllDomains(client: PoolClient): Promise<DomainResponse[]> {
         try {
-            const result = await client.query("SELECT domain,created_at, payment_id, auto_renew,expiration_date FROM tbl_domain_registrations");
+            const result = await client.query("SELECT domain, created_at, payment_status, auto_renew, expiration_date FROM tbl_domain_registrations WHERE payment_status='success'");
             return result.rows;
         } catch (error) {
             throw error;
