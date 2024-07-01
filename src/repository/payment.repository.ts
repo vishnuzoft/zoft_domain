@@ -1,5 +1,5 @@
 import { PoolClient } from 'pg';
-import { PaymentDetails } from '../models';
+import { IntentRequest, PaymentDetails } from '../models';
 
 class PaymentRepository {
     // static async createPayment(client: PoolClient, userId: number, orderItemId: number, amount: number): Promise<number> {
@@ -24,7 +24,23 @@ class PaymentRepository {
     //       throw error;
     //     }
     //   }
-
+    static async savePaymentIntent(
+        client: PoolClient,
+        intentRequest:IntentRequest,
+        user_id:string
+    ): Promise<void> {
+        try {
+            const result = await client.query(
+                `INSERT INTO tbl_payment_intent (user_id, domain, amount, currency, description, years,payment_intent_id,client_secret) 
+                 VALUES ($1, $2, $3, $4, $5, $6,$7,$8) 
+                 RETURNING *`,
+                [user_id, intentRequest.domain, intentRequest.amount, intentRequest.currency, intentRequest.description, intentRequest.years,intentRequest.payment_intent_id,intentRequest.client_secret]
+            );
+            return result.rows[0];
+        } catch (error) {
+            throw error;
+        }
+    }
     static async savePaymentDetails(client: PoolClient, user_id: string, paymentDetails: PaymentDetails): Promise<void> {
         try {
             const result = await client.query(
