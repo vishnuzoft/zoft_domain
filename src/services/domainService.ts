@@ -1,5 +1,5 @@
 import { begin, client, commit, environment, release, rollback, transporter } from '../config';
-import { NamesiloAPI, calculateAmount, customError, domainExpirationDate, emailSenderTemplate, findStatus, processRegistrationsInBatches } from '../utility';
+import { NamesiloAPI, calculatePrice, customError, domainExpirationDate, emailSenderTemplate, findStatus, processRegistrationsInBatches } from '../utility';
 import { Request, Response } from 'express';
 import { AuthenticatedRequest, DomainRegister, DomainResponse, GetDomains, PaymentDetails } from '../models';
 import { AuthRepository, DomainRepository } from '../repository';
@@ -32,45 +32,67 @@ class DomainService {
       throw error;
     }
   }
-  //   static async registerDomain(req: AuthenticatedRequest): Promise<DomainResponse> {
-  //     const dbClient = await client();
+  static async registerDomain(req: AuthenticatedRequest): Promise<DomainResponse> {
+    const dbClient = await client();
 
-  //     try {
+    try {
+      const domain = req.query.domain as string;
+      const years = req.query.years as string;
+      const user_id: string = req.user_id as string;
+      const auto_renew = req.query.auto_renew === '1';
+console.log(domain,'domain');
 
-  //       const domain = req.query.domain as string;
-  //       const years = req.query.years as string;
-  //       const user_id: string = req.user_id as string;
+      console.log(auto_renew);
+      console.log('userrrrrr', user_id);
+      const paymentIntentResult = await DomainRepository.getPaymentIntentByDomain(dbClient, domain);
+      console.log('intentdomain',paymentIntentResult.domain,'reqdomain',domain);
 
-  //       const auto_renew = req.query.auto_renew === '1'
-  // console.log(auto_renew);
+      console.log('Payment Intent Domain:', paymentIntentResult.domain);
+      console.log('Request Domain:', domain);
 
-  //       console.log('userrrrrr', user_id);
+      if (paymentIntentResult.domain !== domain) {
+        throw new Error('Domain not match');
+      }
 
-  //       const registerData: DomainRegister = { domain, years, auto_renew };
+      console.log(paymentIntentResult, 'intent result..............');
 
-  //       console.log("regdata", registerData);
+      const registerData: DomainRegister = { domain, years, auto_renew };
+console.log(registerData,'registerdata');
 
-  //       const registrationResult = await NamesiloAPI.registerDomain(registerData);
+      console.log("regdata", registerData);
+      const expirationDate = domainExpirationDate(Number(years));
+      const status = findStatus(new Date(), expirationDate);
 
-  //       //const dbResult = await DomainRepository.registerDomain(dbClient, user_id, registerData);
-  //       if (registrationResult.namesilo.reply[0].code[0] === '300') {
-  //         const dbResult = await DomainRepository.registerDomain(dbClient, user_id, registerData);
-  //         console.log("dbresult", dbResult);
-  //       }
+      const registrationResult = await NamesiloAPI.registerDomain(registerData);
+      
+      
+        const dbResult = await DomainRepository.registerDomain(dbClient, user_id, paymentIntentResult.payment_intent_id, registerData, 'success', expirationDate,
+          status);
+        console.log("dbresult", dbResult);
+      
+      const emailData=dbResult.rows[0];
+      console.log(emailData,'emaildata');
+      
+      const content="Domain Registration Successful";
+      const user=await AuthRepository.findUserById(dbClient,user_id)
+      const userResult=user.rows[0];
+      const mailOptions = emailSenderTemplate(
+                 userResult.email,
+                 content,
+                 "domainRegister.ejs",
+                 emailData
+               );
+               await transporter.sendMail(mailOptions); 
 
-  //       console.log("regresult: ", registrationResult);
-  //       //console.log("dbresult", dbResult);
-  // // Validate input
-  // // if (!domain || !years || years < 1 || years > 10) {
-  // //   throw new Error('Invalid input');
-  // // }
-  //       return registrationResult;
-  //     } catch (error) {
-  //       throw error;
-  //     } finally {
-  //       release(dbClient);
-  //     }
-  //   }
+      console.log("regresult: ", registrationResult);
+
+      return registrationResult;
+    } catch (error) {
+      throw error;
+    } finally {
+      release(dbClient);
+    }
+  }
 
   // static async registerBulkDomains(req: AuthenticatedRequest): Promise<DomainResponse[]> {
   //   const dbclient=await client();
@@ -94,62 +116,67 @@ class DomainService {
   // }
 
 
-  static async registerBulkDomains(req: AuthenticatedRequest): Promise<DomainResponse[]> {
-    const dbclient = await client();
-    const user_id = req.user_id || ''
-    const { registrations } = req.body;
-    try {
-      //const paymentId = await PaymentService.confirmPayment(req);
-      //console.log(paymentId);
+  // static async registerBulkDomains(req: AuthenticatedRequest): Promise<DomainResponse[]> {
+  //   const dbclient = await client();
+  //   const user_id = req.user_id || ''
+  //   const { registrations } = req.body;
+  //   const paymentIntentId = req.body.payment_intent_id;
+  //   console.log(paymentIntentId,'id');
+
+  //   try {
+  //     //const paymentId = await PaymentService.confirmPayment(req);
+  //     //console.log(paymentId);
 
 
-      // const registrations: DomainRegister[] = req.body.registrations;
-      // console.log(req.body.registrations,"req.body.registrations");
-      const registrationsWithPaymentId = registrations.map((registration: DomainRegister) => ({
-        ...registration
-      }));
+  //     // const registrations: DomainRegister[] = req.body.registrations;
+  //     // console.log(req.body.registrations,"req.body.registrations");
+  //     const registrationsWithPaymentId = registrations.map((registration: DomainRegister) => ({
+  //       ...registration
+  //     }));
 
-      const registrationResults = await processRegistrationsInBatches(registrationsWithPaymentId);
-      console.log(registrationResults, "results");
+  //     const registrationResults = await processRegistrationsInBatches(registrationsWithPaymentId);
+  //     console.log(registrationResults, "results");
 
-      for (const registration of registrations) {
-        const expirationDate = domainExpirationDate(registration.years);
-        const status = findStatus(new Date(), expirationDate);
+  //     for (const registration of registrations) {
+  //       const expirationDate = domainExpirationDate(registration.years);
+  //       const status = findStatus(new Date(), expirationDate);
 
-        console.log(registrations, "registration");
-        await begin(dbclient);
-        const dbResult = await DomainRepository.registerDomain(dbclient, user_id, {
-          ...registration,
-          expirationDate,
-          status,
-        });
-        console.log("dbResult", dbResult.rows[0]);
+  //       console.log(registrations, "registration");
+  //       await begin(dbclient);
+  //       const dbResult = await DomainRepository.registerDomain(dbclient, user_id, {
+  //         ...registration,
+  //         payment_intent_id: paymentIntentId,
+  //         payment_status:'success',
+  //         expirationDate,
+  //         status,
+  //       });
+  //       console.log("dbResult", dbResult.rows[0]);
 
-        const emailData = {
-          domains: dbResult.rows[0],
-          user_id
-        };
-        const content = "Domain Registration Successful";
-        const userResult = await AuthRepository.findUserById(dbclient, user_id);
-        const user = userResult.rows[0];
+  //       const emailData = {
+  //         domains: dbResult.rows[0],
+  //         user_id
+  //       };
+  //       const content = "Domain Registration Successful";
+  //       const userResult = await AuthRepository.findUserById(dbclient, user_id);
+  //       const user = userResult.rows[0];
 
-        const mailOptions = emailSenderTemplate(
-          user.email,
-          content,
-          "domainRegister.ejs",
-          emailData
-        );
-        await transporter.sendMail(mailOptions);
-        //console.log(dbResult,'dbbbbbbbbbb');
+  //       const mailOptions = emailSenderTemplate(
+  //         user.email,
+  //         content,
+  //         "domainRegister.ejs",
+  //         emailData
+  //       );
+  //       await transporter.sendMail(mailOptions);
+  //       //console.log(dbResult,'dbbbbbbbbbb');
 
-      }
-      await commit(dbclient);
-      return registrationResults;
-    } catch (error) {
-      await rollback(dbclient);
-      throw error;
-    }
-  }
+  //     }
+  //     await commit(dbclient);
+  //     return registrationResults;
+  //   } catch (error) {
+  //     await rollback(dbclient);
+  //     throw error;
+  //   }
+  // }
 
 
   static async renewDomain(req: Request): Promise<DomainResponse> {

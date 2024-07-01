@@ -33,8 +33,22 @@ CREATE TABLE IF NOT EXISTS tbl_user_profile(
     FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
 );
 
-DROP TYPE IF EXISTS domain_status CASCADE;
-CREATE TYPE domain_status AS ENUM ('active', 'expired', 'pending');
+CREATE TABLE IF NOT EXISTS tbl_payment_intent (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    domain VARCHAR(255) NOT NULL,
+    amount INTEGER NOT NULL,
+    currency VARCHAR(10) NOT NULL,
+    description TEXT,
+    years VARCHAR(10) NOT NULL,
+    payment_intent_id VARCHAR(255),
+    client_secret VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES tbl_user_account(user_id)
+);
+
+--DROP TYPE IF EXISTS domain_status CASCADE;
+--CREATE TYPE domain_status AS ENUM ('active', 'expired', 'pending');
 
 CREATE TABLE IF NOT EXISTS tbl_domain_registrations (
   id SERIAL PRIMARY KEY,
@@ -43,7 +57,8 @@ CREATE TABLE IF NOT EXISTS tbl_domain_registrations (
   years INTEGER NOT NULL,
   auto_renew BOOLEAN,
   expiration_date TIMESTAMP,
-  status domain_status,
+  status VARCHAR (20),
+  payment_intent_id VARCHAR(255) NOT NULL,
   payment_status VARCHAR(20) DEFAULT 'unpaid',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

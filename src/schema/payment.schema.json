@@ -2,9 +2,14 @@
     "$id": "payment",
     "type": "object",
     "properties": {
-        "amount": {
+        "domain": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 255
+        },
+        "years": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
         },
         "currency": {
             "type": "string",
@@ -14,8 +19,18 @@
         "description": {
             "type": "string",
             "maxLength": 255
+        },
+        "payment_intent_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+        },
+        "client_secret": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
         }
     },
-    "required": ["amount", "currency", "description"],
+    "required": ["domain", "years", "currency", "description"],
     "additionalProperties": false
 }
